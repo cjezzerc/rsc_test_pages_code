@@ -1,8 +1,8 @@
 from read_write_and_parse import (
-    parse_phenotype_for_title,
-    parse_phenotype_for_brief_description,
-    parse_phenotype_for_codelist_usage,
-    parse_phenotype_for_is_template_status,
+    parse_description_for_title,
+    parse_description_for_brief_description,
+    parse_phenotype_description_for_codelist_usage,
+    parse_phenotype_description_for_is_template_status,
 )
 
 from config_locations_etc import *
@@ -22,19 +22,19 @@ class Phenotype:
         self.id = phenotype_id
         self.raw_description = phenotype_raw_description
 
-        self.title = parse_phenotype_for_title(
+        self.title = parse_description_for_title(
+            description=phenotype_raw_description
+        )
+
+        self.brief_description = parse_description_for_brief_description(
+            description=phenotype_raw_description
+        )
+
+        self.is_template = parse_phenotype_description_for_is_template_status(
             phenotype_description=phenotype_raw_description
         )
 
-        self.brief_description = parse_phenotype_for_brief_description(
-            phenotype_description=phenotype_raw_description
-        )
-
-        self.is_template = parse_phenotype_for_is_template_status(
-            phenotype_description=phenotype_raw_description
-        )
-
-        self.codelists_mentioned = parse_phenotype_for_codelist_usage(
+        self.codelists_mentioned = parse_phenotype_description_for_codelist_usage(
             phenotype_description=phenotype_raw_description
         )
 

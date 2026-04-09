@@ -36,11 +36,11 @@ def read_phenotype_description_files(
     return phenotype_descriptions
 
 
-def parse_phenotype_for_brief_description(phenotype_description=None):
+def parse_description_for_brief_description(description=None):
     # look for text following "## brief description" (case insensitive) line, and before next "## ...." line found
     in_brief_description = False
     brief_description = "no-brief-description-found"
-    for line in phenotype_description:
+    for line in description:
         if re.search(r"^##[ ]+brief description", line.lower()):
             in_brief_description = True
             continue
@@ -54,19 +54,17 @@ def parse_phenotype_for_brief_description(phenotype_description=None):
     brief_description = brief_description.strip()
     return brief_description
 
-
-def parse_phenotype_for_title(phenotype_description=None):
+def parse_description_for_title(description=None):
     # find first line starting with "# " and use that as title
     title = "No-title-found"
-    for line in phenotype_description:
+    for line in description:
         if line[:2] == "# ":
             if len(line) > 2:
                 title = line[2:].strip()
             break
     return title
 
-
-def parse_phenotype_for_is_template_status(phenotype_description=None):
+def parse_phenotype_description_for_is_template_status(phenotype_description=None):
     # find if contains '## template note' (case insensitive)
     is_template = False
     for line in phenotype_description:
@@ -76,7 +74,7 @@ def parse_phenotype_for_is_template_status(phenotype_description=None):
     return is_template
 
 
-def parse_phenotype_for_codelist_usage(phenotype_description=None):
+def parse_phenotype_description_for_codelist_usage(phenotype_description=None):
     # find all occurrences of RSC-C followed by pure digits
     codelists_mentioned = []
     for line in phenotype_description:
@@ -84,16 +82,25 @@ def parse_phenotype_for_codelist_usage(phenotype_description=None):
     return codelists_mentioned
 
 
-def read_codelist_description_files():
-    pass
+def read_codelist_description_files(
+    codelist_descriptions_dir=None, codelists_to_publish=None
+):
+    codelist_descriptions = {}  # dict of markdown keyed by phenotype id
+    for codelist_id in codelists_to_publish:
+        description_file = os.path.join(codelist_descriptions_dir, codelist_id + ".md")
+        if os.path.isfile(description_file):
+            with open(description_file, "r") as f:
+                markdown = f.readlines()
+            codelist_descriptions[codelist_id] = markdown
+        else:
+            print(
+                f"Warning: no description file found for {codelist_id} at {description_file}"
+            )
+            # sys.exit()
+    return codelist_descriptions
 
 
-def parse_codelist_descriptions_for_brief_description():
-    pass
 
-
-def parse_codelist_descriptions_for_title():
-    pass
 
 def read_and_set_expansions(codelists=None):
     with open(CODELIST_EXPANSIONS, newline="", encoding="utf-8-sig") as f:
@@ -135,7 +142,6 @@ def read_and_set_logical_definitions(codelists=None):
                     )
 
 
-
 def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
     template_string = """
 [Go to Codelist Index]({{ rel_path_to_codelists_index }})
@@ -173,12 +179,11 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
         phenotypes=phenotypes,
         codelist_hyperlinks=codelist_hyperlinks,
         phenotype_hyperlinks=phenotype_hyperlinks,
-        rel_path_to_codelists_index=rel_path_to_codelists_index
+        rel_path_to_codelists_index=rel_path_to_codelists_index,
     )
 
     with open(output_fullpath, "w") as ofh:
         ofh.write(rendered_template)
-
 
 
 def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
@@ -201,9 +206,7 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
     phenotype_hyperlinks = {}
     codelist_hyperlinks = {}
     for c_id, c in codelists.items():
-        rel_path_to_codelist_description = os.path.relpath(
-            c.description_fullpath, here
-        )
+        rel_path_to_codelist_description = os.path.relpath(c.description_fullpath, here)
         codelist_hyperlinks[c_id] = f"[{c_id}]({rel_path_to_codelist_description})"
         phhl = []
         for p in c.phenotypes_used_in:
@@ -218,8 +221,7 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
         codelists=codelists,
         codelist_hyperlinks=codelist_hyperlinks,
         phenotype_hyperlinks=phenotype_hyperlinks,
-        rel_path_to_phenotypes_index=rel_path_to_phenotypes_index
-
+        rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
     )
 
     with open(output_fullpath, "w") as ofh:
@@ -254,7 +256,9 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
                     codelists[c].description_fullpath, here
                 )
                 temp = re.sub(c, f"[{c}]({rel_path_to_codelist_description})", temp)
-            temp = ("|" + temp).strip()[1:] # strip any trailing newlines but maintain indents at left
+            temp = ("|" + temp).strip()[
+                1:
+            ]  # strip any trailing newlines but maintain indents at left
             modified_description.append(temp)
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
@@ -334,11 +338,15 @@ def create_codelist_output_logical_definition_files(codelists=None):
 
 ## Exclude
 
+{% if codelist.logical_definition["excludes"] %}
 | SNOMED ID | Plus descendants | Term | 
 |----|-------|----|
 {%- for item in codelist.logical_definition["excludes"] %} 
 | {{ item["concept_id"] }} | {{ item["include_desc"] }} | {{ item["term"] }} |
 {%- endfor %}
+{% else %}
+No exclusions
+{% endif %}
 
 
 """

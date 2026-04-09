@@ -4,6 +4,7 @@ from config_locations_etc import *
 from read_write_and_parse import (
     read_phenotypes_to_publish,
     read_phenotype_description_files,
+    read_codelist_description_files,
     create_phenotype_index_markdown_file,
     create_codelist_index_markdown_file,
     create_phenotype_output_description_files,
@@ -36,16 +37,31 @@ for phenotype_id in phenotypes_to_publish:
         phenotype_id=phenotype_id, phenotype_raw_description=phenotype_raw_description
     )
 
-# Dictionary of Codelists objects is created, via combining all Phenotype objects' codelists_mentioned attributes
+# List of codelists ids is created, via combining all Phenotype objects' codelists_mentioned attributes
 codelists_to_publish = set()
 for p in phenotypes.values():
     codelists_to_publish.update(p.codelists_mentioned)
-codelists = {
-    c: Codelist(codelist_id=c, codelist_raw_description="")
-    for c in codelists_to_publish
-}
+codelists_to_publish = list(codelists_to_publish)
 
-# Scan all Phenotype objects' codelists_mentioned attributes and set the phenotypes_used_in attributes of Codelist objects 
+# Read the codelist descriptions files
+codelist_descriptions = read_codelist_description_files(
+    codelist_descriptions_dir=CODELIST_DESCRIPTIONS_DIR,
+    codelists_to_publish=codelists_to_publish,
+)
+
+# Create a dictionary of Codelist objects
+codelists = {}
+for codelist_id in codelists_to_publish:
+    if codelist_id in codelist_descriptions:
+        codelist_raw_description = codelist_descriptions[codelist_id]
+    else:
+        codelist_raw_description = ""
+    codelists[codelist_id] = Codelist(
+        codelist_id=codelist_id, codelist_raw_description=codelist_raw_description
+    )
+
+
+# Scan all Phenotype objects' codelists_mentioned attributes and set the phenotypes_used_in attributes of Codelist objects
 for p_id, p in phenotypes.items():
     for codelist_id in p.codelists_mentioned:
         codelists[codelist_id].phenotypes_used_in.append(p_id)
@@ -57,12 +73,8 @@ read_and_set_expansions(codelists=codelists)
 read_and_set_logical_definitions(codelists=codelists)
 
 # create output files
-create_phenotype_index_markdown_file(
-    phenotypes=phenotypes, codelists=codelists
-)
-create_codelist_index_markdown_file(
-    phenotypes=phenotypes, codelists=codelists
-)
+create_phenotype_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
+create_codelist_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_phenotype_output_description_files(phenotypes=phenotypes, codelists=codelists)
 create_codelist_output_description_files(codelists=codelists)
 create_codelist_output_logical_definition_files(codelists=codelists)

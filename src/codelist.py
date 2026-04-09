@@ -1,6 +1,10 @@
-import read_write_and_parse
-from config_locations_etc import *
+from read_write_and_parse import (
+    parse_description_for_title,
+    parse_description_for_brief_description,
+   
+)
 
+from config_locations_etc import *
 
 class Codelist:
     __slots__ = [
@@ -30,15 +34,15 @@ class Codelist:
         self.logical_definition_fullpath=CODELISTS_OUTPUT_LOGICAL_DEFINITIONS_DIR + f"{self.id}_ld.md"
         self.expansion_fullpath=CODELISTS_OUTPUT_EXPANSIONS_DIR + f"{self.id}_exp.md"
 
-        # self.title = read_write_and_parse.parse_codelist_for_title(
-        #     codelist_description=codelist_raw_description
-        # )
+        self.title = parse_description_for_title(
+            description=codelist_raw_description
+        )
 
-        # self.brief_description = (
-        #     read_write_and_parse.parse_codelist_for_brief_description(
-        #         codelist_description=codelist_raw_description
-        #     )
-        # )
+        self.brief_description = (
+            parse_description_for_brief_description(
+                description=codelist_raw_description
+            )
+        )
 
     def __repr__(self):
         repr_strings=[]
