@@ -7,12 +7,18 @@ from config_locations_etc import *
 
 
 def read_phenotypes_to_publish(phenotypes_to_publish_file=None):
-    ws = openpyxl.load_workbook(phenotypes_to_publish_file).worksheets[0]
-    phenotypes_index = []
-    next(ws.rows)  # skip header row
-    for row in ws.iter_rows(min_row=2):
-        phenotype_id = row[0].value
-        phenotypes_index.append(phenotype_id)
+    # ws = openpyxl.load_workbook(phenotypes_to_publish_file).worksheets[0]
+    # phenotypes_index = []
+    # next(ws.rows)  # skip header row
+    # for row in ws.iter_rows(min_row=2):
+    #     phenotype_id = row[0].value
+    #     phenotypes_index.append(phenotype_id)
+    phenotypes_index=[]
+    with open(phenotypes_to_publish_file) as fh:
+        for line in fh.readlines():
+            temp=line.strip()
+            if temp != "": # ignore blank lines
+                phenotypes_index.append(temp)
     return phenotypes_index
 
 
@@ -30,7 +36,7 @@ def read_phenotype_description_files(
             phenotype_descriptions[phenotype_id] = markdown
         else:
             print(
-                f"Warning: no description file found for {phenotype_id} at {description_file}"
+                f"Error: no description file found for {phenotype_id} at {description_file}"
             )
             sys.exit()
     return phenotype_descriptions
@@ -243,6 +249,7 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
     template = Template(template_string)
 
     for p_id, p in phenotypes.items():
+        print(f"Outputting description file for {p_id}")
         output_fullpath = p.description_fullpath
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
