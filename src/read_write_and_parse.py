@@ -54,6 +54,7 @@ def parse_description_for_brief_description(description=None):
     brief_description = brief_description.strip()
     return brief_description
 
+
 def parse_description_for_title(description=None):
     # find first line starting with "# " and use that as title
     title = "No-title-found"
@@ -63,6 +64,7 @@ def parse_description_for_title(description=None):
                 title = line[2:].strip()
             break
     return title
+
 
 def parse_phenotype_description_for_is_template_status(phenotype_description=None):
     # find if contains '## template note' (case insensitive)
@@ -98,8 +100,6 @@ def read_codelist_description_files(
             )
             # sys.exit()
     return codelist_descriptions
-
-
 
 
 def read_and_set_expansions(codelists=None):
@@ -256,9 +256,7 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
                     codelists[c].description_fullpath, here
                 )
                 temp = re.sub(c, f"[{c}]({rel_path_to_codelist_description})", temp)
-            temp = ("|" + temp).strip()[
-                1:
-            ]  # strip any trailing newlines but maintain indents at left
+            temp = ("|" + temp).strip()[1:]  # strip trailing newlines
             modified_description.append(temp)
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
@@ -278,15 +276,13 @@ def create_codelist_output_description_files(codelists=None):
 
 ## RSC Codelist: {{ codelist.id }}
 
-# Title: {{ codelist.title }}
-
 [Codelist Logical Definition]({{ rel_path_to_logical_definition }})
 
 [Codelist Expansion]({{ rel_path_to_expansion }})
 
-# CODELIST DESCRIPTION TO COME HERE
-
-
+{%- for line in modified_description %}
+{{ line }}
+{%- endfor %}  
 
 """
     template = Template(template_string)
@@ -300,12 +296,17 @@ def create_codelist_output_description_files(codelists=None):
             c.logical_definition_fullpath, here
         )
         rel_path_to_expansion = os.path.relpath(c.expansion_fullpath, here)
+        modified_description = []
+        for line in c.raw_description:
+            temp = ("|" + line).strip()[1:]  # strip trailing newlines
+            modified_description.append(temp)
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
             rel_path_to_logical_definition=rel_path_to_logical_definition,
             rel_path_to_expansion=rel_path_to_expansion,
             codelist=c,
+            modified_description=modified_description,
         )
         with open(output_fullpath, "w") as ofh:
             ofh.write(rendered_template)
