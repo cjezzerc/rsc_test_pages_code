@@ -2,6 +2,7 @@ from read_write_and_parse import (
     parse_description_for_title,
     parse_description_for_brief_description,
     parse_phenotype_description_for_codelist_usage,
+    parse_phenotype_description_for_template_phenotype_usage,
     parse_phenotype_description_for_is_template_status,
 )
 
@@ -14,6 +15,7 @@ class Phenotype:
         "title",
         "brief_description",
         "codelists_mentioned",
+        "templates_mentioned",
         "is_template",
         "description_fullpath",
     ]
@@ -37,6 +39,11 @@ class Phenotype:
         self.codelists_mentioned = parse_phenotype_description_for_codelist_usage(
             phenotype_description=phenotype_raw_description
         )
+
+        self.templates_mentioned = parse_phenotype_description_for_template_phenotype_usage(
+            phenotype_description=phenotype_raw_description
+        )
+
 
         self.description_fullpath=PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR + f"{self.id}.md"
 

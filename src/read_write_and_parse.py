@@ -13,11 +13,11 @@ def read_phenotypes_to_publish(phenotypes_to_publish_file=None):
     # for row in ws.iter_rows(min_row=2):
     #     phenotype_id = row[0].value
     #     phenotypes_index.append(phenotype_id)
-    phenotypes_index=[]
+    phenotypes_index = []
     with open(phenotypes_to_publish_file) as fh:
         for line in fh.readlines():
-            temp=line.strip()
-            if temp != "": # ignore blank lines
+            temp = line.strip()
+            if temp != "":  # ignore blank lines
                 phenotypes_index.append(temp)
     return phenotypes_index
 
@@ -90,6 +90,18 @@ def parse_phenotype_description_for_codelist_usage(phenotype_description=None):
     return codelists_mentioned
 
 
+def parse_phenotype_description_for_template_phenotype_usage(
+    phenotype_description=None,
+):
+    # find all occurrences of T:RSC-PH followed by pure digits
+    # before returning the list, the "T:" part is stripped off
+    templates_mentioned = []
+    for line in phenotype_description:
+        templates_mentioned += re.findall(r"\bT:RSC-PH\d+\b", line)
+    templates_mentioned_trimmed = [x[2:] for x in templates_mentioned]
+    return templates_mentioned_trimmed
+
+
 def read_codelist_description_files(
     codelist_descriptions_dir=None, codelists_to_publish=None
 ):
@@ -154,11 +166,12 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
 
 # Phenotype Index
 
-| id | title | brief description | codelists used |
-|----|-------|-------------------|----------------|
-{%- for p in phenotypes.values() %} 
-| {{ phenotype_hyperlinks[p.id] }} | {{p.title}} | {{ p.brief_description }} | {{codelist_hyperlinks[p.id]}}|
-{%- endfor %}
+| id | title | brief description | codelists used | templates used |
+|----|-------|-------------------|----------------|----------------|
+{%- for p_id in p_ids_sorted %} 
+    {%- set p = phenotypes[p_id] %} 
+| {{ phenotype_hyperlinks[p.id] }} | {{p.title}} | {{ p.brief_description }} | {{codelist_hyperlinks[p.id]}}| {{template_hyperlinks[p.id]}} |
+    {%- endfor %}
 
 """
     template = Template(template_string)
@@ -167,6 +180,7 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
     rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
     phenotype_hyperlinks = {}
     codelist_hyperlinks = {}
+    template_hyperlinks = {}
     for p_id, p in phenotypes.items():
         rel_path_to_phenotype_description = os.path.relpath(
             p.description_fullpath, here
@@ -180,11 +194,22 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
             )
             chl.append(f"[{c}]({rel_path_to_codelist_description})")
         codelist_hyperlinks[p_id] = ", ".join(chl)
+        thl = []
+        for t in p.templates_mentioned:
+            rel_path_to_template_description = os.path.relpath(
+                phenotypes[t].description_fullpath, here
+            )
+            thl.append(f"[{t}]({rel_path_to_template_description})")
+        template_hyperlinks[p_id] = ", ".join(thl)
+    p_ids = list(phenotypes.keys())
+    p_ids_sorted = sorted(p_ids, key=lambda p_id: int(p_id[6:]))
 
     rendered_template = template.render(
         phenotypes=phenotypes,
+        p_ids_sorted=p_ids_sorted,
         codelist_hyperlinks=codelist_hyperlinks,
         phenotype_hyperlinks=phenotype_hyperlinks,
+        template_hyperlinks=template_hyperlinks,
         rel_path_to_codelists_index=rel_path_to_codelists_index,
     )
 
@@ -200,7 +225,8 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
 
 | id | title | brief description | phenotypes used in |
 |----|-------|-------------------|----------------|
-{%- for c in codelists.values() %} 
+{%- for c_id in c_ids_sorted %}
+{%- set c = codelists[c_id] %} 
 | {{ codelist_hyperlinks[c.id] }} | {{c.title}} | {{ c.brief_description }} | {{phenotype_hyperlinks[c.id]}}|
 {%- endfor %}
 
@@ -222,9 +248,12 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
             )
             phhl.append(f"[{p}]({rel_path_to_phenotype_description})")
         phenotype_hyperlinks[c_id] = ", ".join(phhl)
+    c_ids = list(codelists.keys())
+    c_ids_sorted = sorted(c_ids, key=lambda c_id: int(c_id[5:]))
 
     rendered_template = template.render(
         codelists=codelists,
+        c_ids_sorted=c_ids_sorted,
         codelist_hyperlinks=codelist_hyperlinks,
         phenotype_hyperlinks=phenotype_hyperlinks,
         rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
@@ -263,6 +292,13 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
                     codelists[c].description_fullpath, here
                 )
                 temp = re.sub(c, f"[{c}]({rel_path_to_codelist_description})", temp)
+            for t in p.templates_mentioned:
+                rel_path_to_template_description = os.path.relpath(
+                    phenotypes[t].description_fullpath, here
+                )
+                temp = re.sub(
+                    "T:" + t, f"[{t}]({rel_path_to_template_description})", temp
+                )
             temp = ("|" + temp).strip()[1:]  # strip trailing newlines
             modified_description.append(temp)
         rendered_template = template.render(
@@ -340,7 +376,7 @@ def create_codelist_output_logical_definition_files(codelists=None):
 
 | SNOMED ID | Plus descendants | Term | 
 |----|-------|----|
-{%- for item in codelist.logical_definition["includes"] %} 
+{%- for item in includes_sorted %} 
 | [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["include_desc"] }} | {{ item["term"] }} |
 {%- endfor %}
 
@@ -349,8 +385,8 @@ def create_codelist_output_logical_definition_files(codelists=None):
 {% if codelist.logical_definition["excludes"] %}
 | SNOMED ID | Plus descendants | Term | 
 |----|-------|----|
-{%- for item in codelist.logical_definition["excludes"] %} 
-| {{ item["concept_id"] }} | {{ item["include_desc"] }} | {{ item["term"] }} |
+{%- for item in excludes_sorted %} 
+| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["include_desc"] }} | {{ item["term"] }} |
 {%- endfor %}
 {% else %}
 No exclusions
@@ -367,12 +403,16 @@ No exclusions
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
         rel_path_to_description = os.path.relpath(c.description_fullpath, here)
         rel_path_to_expansion = os.path.relpath(c.expansion_fullpath, here)
+        includes_sorted=sorted(c.logical_definition["includes"], key=lambda item: item["term"])
+        excludes_sorted=sorted(c.logical_definition["excludes"], key=lambda item: item["term"])
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
             rel_path_to_description=rel_path_to_description,
             rel_path_to_expansion=rel_path_to_expansion,
             codelist=c,
+            includes_sorted=includes_sorted,
+            excludes_sorted=excludes_sorted,
         )
         with open(output_fullpath, "w") as ofh:
             ofh.write(rendered_template)
@@ -397,8 +437,8 @@ def create_codelist_output_expansion_files(codelists=None):
 
 | SNOMED ID | Term | 
 |----|-------|
-{%- for item in codelist.expansion %} 
-| {{ item["concept_id"] }} | {{ item["term"] }} |
+{%- for item in expansion_sorted %} 
+| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["term"] }} |
 {%- endfor %}
 
 """
@@ -413,12 +453,14 @@ def create_codelist_output_expansion_files(codelists=None):
         rel_path_to_logical_definition = os.path.relpath(
             c.logical_definition_fullpath, here
         )
+        expansion_sorted=sorted(c.expansion, key=lambda item: item["term"])
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
             rel_path_to_description=rel_path_to_description,
             rel_path_to_logical_definition=rel_path_to_logical_definition,
             codelist=c,
+            expansion_sorted=expansion_sorted,
         )
         with open(output_fullpath, "w") as ofh:
             ofh.write(rendered_template)
