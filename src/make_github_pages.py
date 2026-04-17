@@ -1,18 +1,20 @@
 import openpyxl
 
 from config_locations_etc import *
-from read_write_and_parse import (
+from read_and_parse import (
     read_phenotypes_to_publish,
     read_phenotype_description_files,
     read_codelist_description_files,
+    read_and_set_expansions,
+    read_and_set_logical_definitions,
+)
+from make_output import (
     create_phenotype_index_markdown_file,
     create_codelist_index_markdown_file,
     create_phenotype_output_description_files,
     create_codelist_output_description_files,
     create_codelist_output_logical_definition_files,
     create_codelist_output_expansion_files,
-    read_and_set_expansions,
-    read_and_set_logical_definitions,
 )
 from phenotype import Phenotype
 from codelist import Codelist
