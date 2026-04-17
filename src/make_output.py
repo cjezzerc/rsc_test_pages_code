@@ -2,6 +2,7 @@ import os.path, re
 
 import openpyxl
 from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader
 
 from config_locations_etc import *
 
@@ -20,7 +21,11 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
     {%- endfor %}
 
 """
-    template = Template(template_string)
+    jinja_environment = Environment(loader=FileSystemLoader("templates/"))
+    # template = jinja_environment.get_template("phenotypes_index.md")
+    template = jinja_environment.get_template("phenotypes_index.html")
+    
+    # template = Template(template_string)
     output_fullpath = PHENOTYPES_OUTPUT_INDEX
     here = os.path.dirname(output_fullpath)
     rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
@@ -31,21 +36,27 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
         rel_path_to_phenotype_description = os.path.relpath(
             p.description_fullpath, here
         )
-        phenotype_hyperlinks[p_id] = f"[{p_id}]({rel_path_to_phenotype_description})"
+        # phenotype_hyperlinks[p_id] = f"[{p_id}]({rel_path_to_phenotype_description})"
+        hyperlink=f"<a href='{rel_path_to_phenotype_description}'>{p_id}</a>"
+        phenotype_hyperlinks[p_id] = hyperlink
         chl = []
         for c in p.codelists_mentioned:
             rel_path_to_codelist_description = os.path.relpath(
                 codelists[c].description_fullpath,
                 here,
             )
-            chl.append(f"[{c}]({rel_path_to_codelist_description})")
+            # chl.append(f"[{c}]({rel_path_to_codelist_description})")
+            hyperlink=f"<a href='{rel_path_to_codelist_description}'>{c}</a>"
+            chl.append(hyperlink)
         codelist_hyperlinks[p_id] = ", ".join(chl)
         thl = []
         for t in p.templates_mentioned:
             rel_path_to_template_description = os.path.relpath(
                 phenotypes[t].description_fullpath, here
             )
-            thl.append(f"[{t}]({rel_path_to_template_description})")
+            # thl.append(f"[{t}]({rel_path_to_template_description})")
+            hyperlink=f"<a href='{rel_path_to_template_description}'>{t}</a>"
+            thl.append(hyperlink)
         template_hyperlinks[p_id] = ", ".join(thl)
     p_ids = list(phenotypes.keys())
     p_ids_sorted = sorted(p_ids, key=lambda p_id: int(p_id[6:]))

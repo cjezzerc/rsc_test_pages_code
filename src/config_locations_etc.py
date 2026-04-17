@@ -15,7 +15,7 @@ CODELIST_DESCRIPTIONS_DIR = AUTHORING + "codelists/"
 
 OUTPUT_STAGING_ROOT_DIR = "/home/jeremy/GIT/rsc_test_pages/"
 # OUTPUT_STAGING_ROOT_DIR = ROOT_DIR + "github_pages_staging/"
-PHENOTYPES_OUTPUT_INDEX = OUTPUT_STAGING_ROOT_DIR + "phenotypes_index.md"
+PHENOTYPES_OUTPUT_INDEX = OUTPUT_STAGING_ROOT_DIR + "phenotypes_index.html"
 PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR = OUTPUT_STAGING_ROOT_DIR + "phenotypes/"
 CODELISTS_OUTPUT_INDEX = OUTPUT_STAGING_ROOT_DIR + "codelists_index.md"
 # CODELISTS_OUTPUT_INDEX = OUTPUT_STAGING_ROOT_DIR + "phenotypes_index.md" # just to make sure exists to keep jekyll happy
