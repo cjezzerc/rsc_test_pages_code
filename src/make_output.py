@@ -218,24 +218,44 @@ def create_codelist_output_logical_definition_files(codelists=None):
 
 # LOGICAL_DEFINITION
 
-## Include
+## Include concept and descendants
 
-| SNOMED ID | Plus descendants | Term | 
-|----|-------|----|
-{%- for item in includes_sorted %} 
-| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["include_desc"] }} | {{ item["term"] }} |
+{% if includes_plus_descs_sorted %}
+| SNOMED ID | Term | 
+|----|----|
+{%- for item in includes_plus_descs_sorted %} 
+| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["term"] }} |
 {%- endfor %}
+{% endif %}
 
-## Exclude
+## Include just concept
 
-{% if codelist.logical_definition["excludes"] %}
-| SNOMED ID | Plus descendants | Term | 
-|----|-------|----|
-{%- for item in excludes_sorted %} 
-| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["include_desc"] }} | {{ item["term"] }} |
+{% if includes_just_concept_sorted %}
+| SNOMED ID | Term | 
+|----|----|
+{%- for item in includes_just_concept_sorted %} 
+| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["term"] }} |
 {%- endfor %}
-{% else %}
-No exclusions
+{% endif %}
+
+## Exclude concept and descendants
+
+{% if excludes_plus_descs_sorted %}
+| SNOMED ID | Term | 
+|----|----|
+{%- for item in excludes_plus_descs_sorted %} 
+| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["term"] }} |
+{%- endfor %}
+{% endif %}
+
+## Exclude just concept
+
+{% if excludes_just_concept_sorted %}
+| SNOMED ID | Term | 
+|----|----|
+{%- for item in excludes_just_concept_sorted %} 
+| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["term"] }} |
+{%- endfor %}
 {% endif %}
 
 
@@ -249,16 +269,20 @@ No exclusions
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
         rel_path_to_description = os.path.relpath(c.description_fullpath, here)
         rel_path_to_expansion = os.path.relpath(c.expansion_fullpath, here)
-        includes_sorted=sorted(c.logical_definition["includes"], key=lambda item: item["term"])
-        excludes_sorted=sorted(c.logical_definition["excludes"], key=lambda item: item["term"])
+        includes_just_concept_sorted=sorted(c.logical_definition["includes_just_concept"], key=lambda item: item["term"])
+        includes_plus_descs_sorted=sorted(c.logical_definition["includes_plus_descs"], key=lambda item: item["term"])
+        excludes_just_concept_sorted=sorted(c.logical_definition["excludes_just_concept"], key=lambda item: item["term"])
+        excludes_plus_descs_sorted=sorted(c.logical_definition["excludes_plus_descs"], key=lambda item: item["term"])
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
             rel_path_to_description=rel_path_to_description,
             rel_path_to_expansion=rel_path_to_expansion,
             codelist=c,
-            includes_sorted=includes_sorted,
-            excludes_sorted=excludes_sorted,
+            includes_just_concept_sorted=includes_just_concept_sorted,
+            includes_plus_descs_sorted=includes_plus_descs_sorted,
+            excludes_just_concept_sorted=excludes_just_concept_sorted,
+            excludes_plus_descs_sorted=excludes_plus_descs_sorted,
         )
         with open(output_fullpath, "w") as ofh:
             ofh.write(rendered_template)

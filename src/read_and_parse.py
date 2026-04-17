@@ -134,18 +134,13 @@ def read_and_set_logical_definitions(codelists=None):
             term = row["TERM"]
             if codelist_id in codelists:
                 if operator == "AddSubtype":
-                    codelists[codelist_id].logical_definition["includes"].append(
-                        {"concept_id": concept_id, "term": term, "include_desc": False}
-                    )
-                if operator == "AddSupertype":
-                    codelists[codelist_id].logical_definition["includes"].append(
-                        {"concept_id": concept_id, "term": term, "include_desc": True}
-                    )
-                if operator == "MinusSubtype":
-                    codelists[codelist_id].logical_definition["excludes"].append(
-                        {"concept_id": concept_id, "term": term, "include_desc": False}
-                    )
-                if operator == "MinusSupertype":
-                    codelists[codelist_id].logical_definition["excludes"].append(
-                        {"concept_id": concept_id, "term": term, "include_desc": True}
-                    )
+                    clause_type = "includes_just_concept"
+                elif operator == "AddSupertype":
+                    clause_type = "includes_plus_descs"
+                elif operator == "MinusSubtype":
+                    clause_type = "excludes_just_concept"
+                elif operator == "MinusSupertype":
+                    clause_type = "excludes_plus_descs"
+                codelists[codelist_id].logical_definition[clause_type].append(
+                    {"concept_id": concept_id, "term": term}
+                )
