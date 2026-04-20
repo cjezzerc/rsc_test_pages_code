@@ -40,6 +40,32 @@ def get_rel_path_to_shared_image(image_name, here):
     )
 
 
+def add_bootstrap_table_classes(html_fragment):
+    table_classes = "table table-striped table-bordered table-sm"
+
+    def _inject(match):
+        attrs = match.group(1) or ""
+        class_match = re.search(r'class=["\']([^"\']*)["\']', attrs)
+
+        if class_match:
+            existing = class_match.group(1).strip().split()
+            for cls in table_classes.split():
+                if cls not in existing:
+                    existing.append(cls)
+            new_class_attr = f'class="{' '.join(existing)}"'
+            attrs = re.sub(
+                r'class=["\'][^"\']*["\']',
+                new_class_attr,
+                attrs,
+                count=1,
+            )
+            return f"<table{attrs}>"
+
+        return f'<table{attrs} class="{table_classes}">'
+
+    return re.sub(r"<table([^>]*)>", _inject, html_fragment)
+
+
 def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
     template_string = """
 [Go to Codelist Index]({{ rel_path_to_codelists_index }})
@@ -218,14 +244,20 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
                 temp = re.sub("T:" + t, hyperlink, temp)
             temp = ("|" + temp).strip()[1:]  # strip trailing newlines
             modified_description.append(temp)
-        modified_description=markdown.markdown("\n".join(modified_description), extensions=['tables']).split('\n')
+        rendered_description_html = markdown.markdown(
+            "\n".join(modified_description),
+            extensions=["tables"],
+        )
+        rendered_description_html = add_bootstrap_table_classes(
+            rendered_description_html
+        )
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
             rel_path_to_orchid_banner=rel_path_to_orchid_banner,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
             phenotype=p,
-            modified_description=modified_description,
+            rendered_description_html=rendered_description_html,
         )
         with open(output_fullpath, "w") as ofh:
             ofh.write(rendered_template)
@@ -256,7 +288,13 @@ def create_codelist_output_description_files(codelists=None):
         for line in c.raw_description:
             temp = ("|" + line).strip()[1:]  # strip trailing newlines
             modified_description.append(temp)
-        modified_description=markdown.markdown("\n".join(modified_description), extensions=['tables']).split('\n')
+        rendered_description_html = markdown.markdown(
+            "\n".join(modified_description),
+            extensions=["tables"],
+        )
+        rendered_description_html = add_bootstrap_table_classes(
+            rendered_description_html
+        )
 
         
         rendered_template = template.render(
@@ -267,7 +305,7 @@ def create_codelist_output_description_files(codelists=None):
             rel_path_to_logical_definition=rel_path_to_logical_definition,
             rel_path_to_expansion=rel_path_to_expansion,
             codelist=c,
-            modified_description=modified_description,
+            rendered_description_html=rendered_description_html,
         )
         with open(output_fullpath, "w") as ofh:
             ofh.write(rendered_template)

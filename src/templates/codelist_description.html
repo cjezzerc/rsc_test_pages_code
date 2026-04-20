@@ -11,9 +11,7 @@
 
         <div class="card mt-3">
             <div class="card-body">
-                {%- for line in modified_description %}
-                <p>{{ line }}</p>
-                {%- endfor %}
+                {{ rendered_description_html | safe }}
             </div>
         </div>
     </div>

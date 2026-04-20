@@ -8,9 +8,7 @@
 
         <div class="card">
             <div class="card-body">
-                {%- for line in modified_description %}
-                <p>{{ line | safe }}</p>
-                {%- endfor %}
+                {{ rendered_description_html | safe }}
             </div>
         </div>
     </div>
