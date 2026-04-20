@@ -10,9 +10,19 @@
         }
 
         .accordion-button::after {
-            margin-left: 0;
+            display: none;
+        }
+
+        .accordion-button::before {
+            content: "▸";
+            display: inline-block;
             margin-right: 0.75rem;
-            order: -1;
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+
+        .accordion-button:not(.collapsed)::before {
+            content: "▾";
         }
 
         .dt-container {
@@ -204,7 +214,31 @@
                     autoWidth: false,
                     pageLength: 25,
                     lengthMenu: [10, 25, 50, 100],
+                    layout: {
+                        topStart: ["pageLength", "info"],
+                        topEnd: ["search", "paging"],
+                        bottomStart: null,
+                        bottomEnd: null,
+                    },
                 });
+
+                function togglePagingUi() {
+                    var info = dt.page.info();
+                    var container = dt.table().container();
+                    var paging = container.querySelector(".dt-paging");
+                    var length = container.querySelector(".dt-length");
+                    var showControls = info.pages > 1;
+
+                    if (paging) {
+                        paging.style.display = showControls ? "" : "none";
+                    }
+                    if (length) {
+                        length.style.display = showControls ? "" : "none";
+                    }
+                }
+
+                dt.on("draw", togglePagingUi);
+                togglePagingUi();
                 dt.columns.adjust();
                 instances.push({ table: table, dt: dt });
             });
