@@ -16,6 +16,7 @@ from make_output import (
     create_codelist_output_description_files,
     create_codelist_output_logical_definition_files,
     create_codelist_output_expansion_files,
+    create_codelist_output_combo_files,
 )
 from phenotype import Phenotype
 from codelist import Codelist
@@ -80,6 +81,7 @@ copy_shared_banner_images()
 create_phenotype_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_codelist_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_phenotype_output_description_files(phenotypes=phenotypes, codelists=codelists)
-create_codelist_output_description_files(codelists=codelists)
-create_codelist_output_logical_definition_files(codelists=codelists)
-create_codelist_output_expansion_files(codelists=codelists)
+# create_codelist_output_description_files(codelists=codelists)
+# create_codelist_output_logical_definition_files(codelists=codelists)
+# create_codelist_output_expansion_files(codelists=codelists)
+create_codelist_output_combo_files(codelists=codelists)

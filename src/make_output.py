@@ -263,6 +263,54 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
             ofh.write(rendered_template)
 
 
+def create_codelist_output_combo_files(codelists=None):
+    jinja_environment = Environment(loader=FileSystemLoader("templates/"))
+    template = jinja_environment.get_template("codelist_combo.html")
+
+    for c_id, c in codelists.items():
+        output_fullpath = c.description_fullpath
+        here = os.path.dirname(output_fullpath)
+        rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
+        rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+        rel_path_to_orchid_banner = get_rel_path_to_shared_image(
+            ORCHID_BANNER_FILENAME, here
+        )
+        rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
+        
+        modified_description = []
+        for line in c.raw_description:
+            temp = ("|" + line).strip()[1:]  # strip trailing newlines
+            modified_description.append(temp)
+        rendered_description_html = markdown.markdown(
+            "\n".join(modified_description),
+            extensions=["tables"],
+        )
+        rendered_description_html = add_bootstrap_table_classes(
+            rendered_description_html
+        )
+        includes_just_concept_sorted=sorted(c.logical_definition["includes_just_concept"], key=lambda item: item["term"])
+        includes_plus_descs_sorted=sorted(c.logical_definition["includes_plus_descs"], key=lambda item: item["term"])
+        excludes_just_concept_sorted=sorted(c.logical_definition["excludes_just_concept"], key=lambda item: item["term"])
+        excludes_plus_descs_sorted=sorted(c.logical_definition["excludes_plus_descs"], key=lambda item: item["term"])
+        expansion_sorted=sorted(c.expansion, key=lambda item: item["term"])
+        rendered_template = template.render(
+            rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
+            rel_path_to_codelists_index=rel_path_to_codelists_index,
+            rel_path_to_orchid_banner=rel_path_to_orchid_banner,
+            rel_path_to_rsc_image=rel_path_to_rsc_image,
+            codelist=c,
+            rendered_description_html=rendered_description_html,
+            includes_just_concept_sorted=includes_just_concept_sorted,
+            includes_plus_descs_sorted=includes_plus_descs_sorted,
+            excludes_just_concept_sorted=excludes_just_concept_sorted,
+            excludes_plus_descs_sorted=excludes_plus_descs_sorted,
+            expansion_sorted=expansion_sorted,
+            
+        )
+        with open(output_fullpath, "w") as ofh:
+            ofh.write(rendered_template)
+
+
 def create_codelist_output_description_files(codelists=None):
     jinja_environment = Environment(loader=FileSystemLoader("templates/"))
     template = jinja_environment.get_template("codelist_description.html")
@@ -295,7 +343,8 @@ def create_codelist_output_description_files(codelists=None):
         rendered_description_html = add_bootstrap_table_classes(
             rendered_description_html
         )
-
+        
+     
         
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
@@ -306,6 +355,8 @@ def create_codelist_output_description_files(codelists=None):
             rel_path_to_expansion=rel_path_to_expansion,
             codelist=c,
             rendered_description_html=rendered_description_html,
+            
+
         )
         with open(output_fullpath, "w") as ofh:
             ofh.write(rendered_template)
