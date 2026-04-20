@@ -9,6 +9,7 @@ from read_and_parse import (
     read_and_set_logical_definitions,
 )
 from make_output import (
+    copy_shared_banner_images,
     create_phenotype_index_markdown_file,
     create_codelist_index_markdown_file,
     create_phenotype_output_description_files,
@@ -75,6 +76,7 @@ read_and_set_expansions(codelists=codelists)
 read_and_set_logical_definitions(codelists=codelists)
 
 # create output files
+copy_shared_banner_images()
 create_phenotype_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_codelist_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_phenotype_output_description_files(phenotypes=phenotypes, codelists=codelists)

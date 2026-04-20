@@ -1,4 +1,4 @@
-import os.path, re
+import os.path, re, shutil
 
 import openpyxl
 from jinja2 import Template
@@ -6,6 +6,38 @@ from jinja2 import Environment, FileSystemLoader
 import markdown
 
 from config_locations_etc import *
+
+
+TERMBROWSER_CONCEPT_URL = (
+    "https://termbrowser.nhs.uk/?perspective=full&conceptId1={concept_id}"
+    "&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed"
+    "&langRefset=999001261000000100,999000691000001104"
+)
+
+ORCHID_BANNER_FILENAME = "orchid_banner.png"
+RSC_IMAGE_FILENAME = "rsc_image.png"
+
+
+def copy_shared_banner_images():
+    source_images_dir = os.path.normpath(
+        os.path.join(os.path.dirname(__file__), "..", "images")
+    )
+    target_images_dir = os.path.join(OUTPUT_STAGING_ROOT_DIR, "images")
+    os.makedirs(target_images_dir, exist_ok=True)
+
+    for image_name in (ORCHID_BANNER_FILENAME, RSC_IMAGE_FILENAME):
+        source_path = os.path.join(source_images_dir, image_name)
+        target_path = os.path.join(target_images_dir, image_name)
+        if not os.path.exists(source_path):
+            raise FileNotFoundError(f"Required banner image not found: {source_path}")
+        shutil.copy2(source_path, target_path)
+
+
+def get_rel_path_to_shared_image(image_name, here):
+    return os.path.relpath(
+        os.path.join(OUTPUT_STAGING_ROOT_DIR, "images", image_name),
+        here,
+    )
 
 
 def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
@@ -30,6 +62,11 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
     output_fullpath = PHENOTYPES_OUTPUT_INDEX
     here = os.path.dirname(output_fullpath)
     rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+    rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
+    rel_path_to_orchid_banner = get_rel_path_to_shared_image(
+        ORCHID_BANNER_FILENAME, here
+    )
+    rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
     phenotype_hyperlinks = {}
     codelist_hyperlinks = {}
     template_hyperlinks = {}
@@ -71,7 +108,10 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
         codelist_hyperlinks=codelist_hyperlinks,
         phenotype_hyperlinks=phenotype_hyperlinks,
         template_hyperlinks=template_hyperlinks,
+        rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
         rel_path_to_codelists_index=rel_path_to_codelists_index,
+        rel_path_to_orchid_banner=rel_path_to_orchid_banner,
+        rel_path_to_rsc_image=rel_path_to_rsc_image,
     )
 
     with open(output_fullpath, "w") as ofh:
@@ -100,6 +140,11 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
     output_fullpath = CODELISTS_OUTPUT_INDEX
     here = os.path.dirname(output_fullpath)
     rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
+    rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+    rel_path_to_orchid_banner = get_rel_path_to_shared_image(
+        ORCHID_BANNER_FILENAME, here
+    )
+    rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
     phenotype_hyperlinks = {}
     codelist_hyperlinks = {}
     for c_id, c in codelists.items():
@@ -117,7 +162,7 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
             )
             # phhl.append(f"[{p}]({rel_path_to_phenotype_description})")
             # hyperlink=f"[{p}]({rel_path_to_phenotype_description})"
-            hyperlink=f"<a href='{rel_path_to_phenotype_description}'>{c_id}</a>"
+            hyperlink=f"<a href='{rel_path_to_phenotype_description}'>{phenotypes[p].id}</a>"
             hyperlink=re.sub(r'\.md', '.html', hyperlink) # temporary fix while md and html mix
             phhl.append(hyperlink)
         phenotype_hyperlinks[c_id] = ", ".join(phhl)
@@ -129,7 +174,10 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
         c_ids_sorted=c_ids_sorted,
         codelist_hyperlinks=codelist_hyperlinks,
         phenotype_hyperlinks=phenotype_hyperlinks,
+        rel_path_to_codelists_index=rel_path_to_codelists_index,
         rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
+        rel_path_to_orchid_banner=rel_path_to_orchid_banner,
+        rel_path_to_rsc_image=rel_path_to_rsc_image,
     )
 
     with open(output_fullpath, "w") as ofh:
@@ -146,6 +194,10 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+        rel_path_to_orchid_banner = get_rel_path_to_shared_image(
+            ORCHID_BANNER_FILENAME, here
+        )
+        rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
 
         modified_description = []
         for line in p.raw_description:
@@ -170,6 +222,8 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
+            rel_path_to_orchid_banner=rel_path_to_orchid_banner,
+            rel_path_to_rsc_image=rel_path_to_rsc_image,
             phenotype=p,
             modified_description=modified_description,
         )
@@ -186,6 +240,10 @@ def create_codelist_output_description_files(codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+        rel_path_to_orchid_banner = get_rel_path_to_shared_image(
+            ORCHID_BANNER_FILENAME, here
+        )
+        rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_logical_definition = os.path.relpath(
             c.logical_definition_fullpath, here
         )
@@ -204,6 +262,8 @@ def create_codelist_output_description_files(codelists=None):
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
+            rel_path_to_orchid_banner=rel_path_to_orchid_banner,
+            rel_path_to_rsc_image=rel_path_to_rsc_image,
             rel_path_to_logical_definition=rel_path_to_logical_definition,
             rel_path_to_expansion=rel_path_to_expansion,
             codelist=c,
@@ -222,6 +282,10 @@ def create_codelist_output_logical_definition_files(codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+        rel_path_to_orchid_banner = get_rel_path_to_shared_image(
+            ORCHID_BANNER_FILENAME, here
+        )
+        rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_description = os.path.relpath(c.description_fullpath, here)
         rel_path_to_expansion = os.path.relpath(c.expansion_fullpath, here)
         rel_path_to_description = re.sub(r"\.md$", ".html", rel_path_to_description)
@@ -233,8 +297,11 @@ def create_codelist_output_logical_definition_files(codelists=None):
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
+            rel_path_to_orchid_banner=rel_path_to_orchid_banner,
+            rel_path_to_rsc_image=rel_path_to_rsc_image,
             rel_path_to_description=rel_path_to_description,
             rel_path_to_expansion=rel_path_to_expansion,
+            termbrowser_concept_url=TERMBROWSER_CONCEPT_URL,
             codelist=c,
             includes_just_concept_sorted=includes_just_concept_sorted,
             includes_plus_descs_sorted=includes_plus_descs_sorted,
@@ -254,6 +321,10 @@ def create_codelist_output_expansion_files(codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+        rel_path_to_orchid_banner = get_rel_path_to_shared_image(
+            ORCHID_BANNER_FILENAME, here
+        )
+        rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_description = os.path.relpath(c.description_fullpath, here)
         rel_path_to_logical_definition = os.path.relpath(
             c.logical_definition_fullpath, here
@@ -266,8 +337,11 @@ def create_codelist_output_expansion_files(codelists=None):
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
+            rel_path_to_orchid_banner=rel_path_to_orchid_banner,
+            rel_path_to_rsc_image=rel_path_to_rsc_image,
             rel_path_to_description=rel_path_to_description,
             rel_path_to_logical_definition=rel_path_to_logical_definition,
+            termbrowser_concept_url=TERMBROWSER_CONCEPT_URL,
             codelist=c,
             expansion_sorted=expansion_sorted,
         )
