@@ -34,11 +34,11 @@ class Codelist:
             "excludes_plus_descs": [],
             "excludes_just_concept": [],
         }
-        self.description_fullpath = CODELISTS_OUTPUT_DESCRIPTIONS_DIR + f"{self.id}.md"
+        self.description_fullpath = CODELISTS_OUTPUT_DESCRIPTIONS_DIR + f"{self.id}.html"
         self.logical_definition_fullpath = (
-            CODELISTS_OUTPUT_LOGICAL_DEFINITIONS_DIR + f"{self.id}_ld.md"
+            CODELISTS_OUTPUT_LOGICAL_DEFINITIONS_DIR + f"{self.id}_ld.html"
         )
-        self.expansion_fullpath = CODELISTS_OUTPUT_EXPANSIONS_DIR + f"{self.id}_exp.md"
+        self.expansion_fullpath = CODELISTS_OUTPUT_EXPANSIONS_DIR + f"{self.id}_exp.html"
 
         self.title = parse_description_for_title(description=codelist_raw_description)
 

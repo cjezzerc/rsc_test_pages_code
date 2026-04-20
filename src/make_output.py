@@ -136,18 +136,8 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
 
 
 def create_phenotype_output_description_files(phenotypes=None, codelists=None):
-    template_string = """
-[Back to Phenotype Index]({{ rel_path_to_phenotypes_index }})
-
-[Back to Codelist Index]({{ rel_path_to_codelists_index }})
-
-# RSC Phenotype {{ phenotype.id }}
-
-{%- for line in modified_description %}
-{{ line }}
-{%- endfor %}  
-"""
-    template = Template(template_string)
+    jinja_environment = Environment(loader=FileSystemLoader("templates/"))
+    template = jinja_environment.get_template("phenotype_description.html")
 
     for p_id, p in phenotypes.items():
         print(f"Outputting description file for {p_id}")
@@ -163,14 +153,16 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
                 rel_path_to_codelist_description = os.path.relpath(
                     codelists[c].description_fullpath, here
                 )
-                temp = re.sub(c, f"[{c}]({rel_path_to_codelist_description})", temp)
+                hyperlink = f"<a href='{rel_path_to_codelist_description}'>{c}</a>"
+                hyperlink = re.sub(r'\.md', '.html', hyperlink)
+                temp = re.sub(c, hyperlink, temp)
             for t in p.templates_mentioned:
                 rel_path_to_template_description = os.path.relpath(
                     phenotypes[t].description_fullpath, here
                 )
-                temp = re.sub(
-                    "T:" + t, f"[{t}]({rel_path_to_template_description})", temp
-                )
+                hyperlink = f"<a href='{rel_path_to_template_description}'>{t}</a>"
+                hyperlink = re.sub(r'\.md', '.html', hyperlink)
+                temp = re.sub("T:" + t, hyperlink, temp)
             temp = ("|" + temp).strip()[1:]  # strip trailing newlines
             modified_description.append(temp)
         rendered_template = template.render(
@@ -184,23 +176,8 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
 
 
 def create_codelist_output_description_files(codelists=None):
-    template_string = """
-[Back to Phenotype Index]({{ rel_path_to_phenotypes_index }})
-
-[Back to Codelist Index]({{ rel_path_to_codelists_index }})
-
-## RSC Codelist: {{ codelist.id }}
-
-[Codelist Logical Definition]({{ rel_path_to_logical_definition }})
-
-[Codelist Expansion]({{ rel_path_to_expansion }})
-
-{%- for line in modified_description %}
-{{ line }}
-{%- endfor %}  
-
-"""
-    template = Template(template_string)
+    jinja_environment = Environment(loader=FileSystemLoader("templates/"))
+    template = jinja_environment.get_template("codelist_description.html")
 
     for c_id, c in codelists.items():
         output_fullpath = c.description_fullpath
@@ -211,6 +188,10 @@ def create_codelist_output_description_files(codelists=None):
             c.logical_definition_fullpath, here
         )
         rel_path_to_expansion = os.path.relpath(c.expansion_fullpath, here)
+        rel_path_to_logical_definition = re.sub(
+            r"\.md$", ".html", rel_path_to_logical_definition
+        )
+        rel_path_to_expansion = re.sub(r"\.md$", ".html", rel_path_to_expansion)
         modified_description = []
         for line in c.raw_description:
             temp = ("|" + line).strip()[1:]  # strip trailing newlines
@@ -228,65 +209,8 @@ def create_codelist_output_description_files(codelists=None):
 
 
 def create_codelist_output_logical_definition_files(codelists=None):
-
-    template_string = """
-[Back to Phenotype Index]({{ rel_path_to_phenotypes_index }})
-
-[Back to Codelist Index]({{ rel_path_to_codelists_index }})
-
-## RSC Codelist: {{ codelist.id }}
-
-# Title: {{ codelist.title }}
-
-[Codelist Description]({{ rel_path_to_description }})
-
-[Codelist Expansion]({{ rel_path_to_expansion }})
-
-# LOGICAL_DEFINITION
-
-## Include concept and descendants
-
-{% if includes_plus_descs_sorted %}
-| SNOMED ID | Term | 
-|----|----|
-{%- for item in includes_plus_descs_sorted %} 
-| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["term"] }} |
-{%- endfor %}
-{% endif %}
-
-## Include just concept
-
-{% if includes_just_concept_sorted %}
-| SNOMED ID | Term | 
-|----|----|
-{%- for item in includes_just_concept_sorted %} 
-| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["term"] }} |
-{%- endfor %}
-{% endif %}
-
-## Exclude concept and descendants
-
-{% if excludes_plus_descs_sorted %}
-| SNOMED ID | Term | 
-|----|----|
-{%- for item in excludes_plus_descs_sorted %} 
-| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["term"] }} |
-{%- endfor %}
-{% endif %}
-
-## Exclude just concept
-
-{% if excludes_just_concept_sorted %}
-| SNOMED ID | Term | 
-|----|----|
-{%- for item in excludes_just_concept_sorted %} 
-| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["term"] }} |
-{%- endfor %}
-{% endif %}
-
-
-"""
-    template = Template(template_string)
+    jinja_environment = Environment(loader=FileSystemLoader("templates/"))
+    template = jinja_environment.get_template("codelist_logical_definition.html")
 
     for c_id, c in codelists.items():
         output_fullpath = c.logical_definition_fullpath
@@ -295,6 +219,8 @@ def create_codelist_output_logical_definition_files(codelists=None):
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
         rel_path_to_description = os.path.relpath(c.description_fullpath, here)
         rel_path_to_expansion = os.path.relpath(c.expansion_fullpath, here)
+        rel_path_to_description = re.sub(r"\.md$", ".html", rel_path_to_description)
+        rel_path_to_expansion = re.sub(r"\.md$", ".html", rel_path_to_expansion)
         includes_just_concept_sorted=sorted(c.logical_definition["includes_just_concept"], key=lambda item: item["term"])
         includes_plus_descs_sorted=sorted(c.logical_definition["includes_plus_descs"], key=lambda item: item["term"])
         excludes_just_concept_sorted=sorted(c.logical_definition["excludes_just_concept"], key=lambda item: item["term"])
@@ -315,30 +241,8 @@ def create_codelist_output_logical_definition_files(codelists=None):
 
 
 def create_codelist_output_expansion_files(codelists=None):
-
-    template_string = """
-[Back to Phenotype Index]({{ rel_path_to_phenotypes_index }})
-
-[Back to Codelist Index]({{ rel_path_to_codelists_index }})
-
-## RSC Codelist: {{ codelist.id }}
-
-# Title: {{ codelist.title }}
-
-[Codelist Description]({{ rel_path_to_description }})
-
-[Codelist Logical Definition]({{ rel_path_to_logical_definition }})
-
-# EXPANSION
-
-| SNOMED ID | Term | 
-|----|-------|
-{%- for item in expansion_sorted %} 
-| [{{ item["concept_id"]}}](https://termbrowser.nhs.uk/?perspective=full&conceptId1={{ item["concept_id"] }}&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed&langRefset=999001261000000100,999000691000001104) | {{ item["term"] }} |
-{%- endfor %}
-
-"""
-    template = Template(template_string)
+    jinja_environment = Environment(loader=FileSystemLoader("templates/"))
+    template = jinja_environment.get_template("codelist_expansion.html")
 
     for c_id, c in codelists.items():
         output_fullpath = c.expansion_fullpath
@@ -348,6 +252,10 @@ def create_codelist_output_expansion_files(codelists=None):
         rel_path_to_description = os.path.relpath(c.description_fullpath, here)
         rel_path_to_logical_definition = os.path.relpath(
             c.logical_definition_fullpath, here
+        )
+        rel_path_to_description = re.sub(r"\.md$", ".html", rel_path_to_description)
+        rel_path_to_logical_definition = re.sub(
+            r"\.md$", ".html", rel_path_to_logical_definition
         )
         expansion_sorted=sorted(c.expansion, key=lambda item: item["term"])
         rendered_template = template.render(

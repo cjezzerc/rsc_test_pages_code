@@ -45,7 +45,7 @@ class Phenotype:
         )
 
 
-        self.description_fullpath=PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR + f"{self.id}.md"
+        self.description_fullpath=PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR + f"{self.id}.html"
 
     def __to_dict__(self):
         return {
