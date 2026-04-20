@@ -8,22 +8,23 @@
     <style>
         .top-nav-banner {
             background-color: #002147;
-            min-height: 44px;
+            min-height: 66px;
         }
 
         .top-nav-inner {
-            min-height: 44px;
+            min-height: 66px;
         }
 
         .rsc-mark {
-            height: 30px;
+            height: 45px;
             width: auto;
             display: block;
         }
 
         .top-nav-links a {
             color: #ffffff;
-            font-size: 0.9rem;
+            font-size: 1.35rem;
+            font-weight: 700;
             text-decoration: none;
         }
 
@@ -50,11 +51,11 @@
             <div class="top-nav-inner d-flex align-items-center justify-content-between gap-3">
                 <img class="rsc-mark" src="{{ rel_path_to_rsc_image }}" alt="RSC repository banner">
                 <div class="top-nav-links d-flex justify-content-end gap-4 py-1">
-                    {% if rel_path_to_phenotypes_index is defined %}
-                    <a href="{{ rel_path_to_phenotypes_index }}">Back to Phenotype Index</a>
+                    {% if rel_path_to_phenotypes_index is defined and current_page != "phenotypes_index" %}
+                    <a href="{{ rel_path_to_phenotypes_index }}">Phenotype Index</a>
                     {% endif %}
-                    {% if rel_path_to_codelists_index is defined %}
-                    <a href="{{ rel_path_to_codelists_index }}">Back to Codelist Index</a>
+                    {% if rel_path_to_codelists_index is defined and current_page != "codelists_index" %}
+                    <a href="{{ rel_path_to_codelists_index }}">Codelist Index</a>
                     {% endif %}
                 </div>
             </div>
