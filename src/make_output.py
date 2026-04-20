@@ -38,6 +38,7 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
         )
         # phenotype_hyperlinks[p_id] = f"[{p_id}]({rel_path_to_phenotype_description})"
         hyperlink=f"<a href='{rel_path_to_phenotype_description}'>{p_id}</a>"
+        hyperlink=re.sub(r'\.md', '.html', hyperlink) # temporary fix while md and html mix
         phenotype_hyperlinks[p_id] = hyperlink
         chl = []
         for c in p.codelists_mentioned:
@@ -47,6 +48,7 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
             )
             # chl.append(f"[{c}]({rel_path_to_codelist_description})")
             hyperlink=f"<a href='{rel_path_to_codelist_description}'>{c}</a>"
+            hyperlink=re.sub(r'\.md', '.html', hyperlink) # temporary fix while md and html mix
             chl.append(hyperlink)
         codelist_hyperlinks[p_id] = ", ".join(chl)
         thl = []
@@ -56,6 +58,7 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
             )
             # thl.append(f"[{t}]({rel_path_to_template_description})")
             hyperlink=f"<a href='{rel_path_to_template_description}'>{t}</a>"
+            hyperlink=re.sub(r'\.md', '.html', hyperlink) # temporary fix while md and html mix
             thl.append(hyperlink)
         template_hyperlinks[p_id] = ", ".join(thl)
     p_ids = list(phenotypes.keys())
@@ -88,7 +91,11 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
 {%- endfor %}
 
 """
-    template = Template(template_string)
+    jinja_environment = Environment(loader=FileSystemLoader("templates/"))
+    # template = jinja_environment.get_template("phenotypes_index.md")
+    template = jinja_environment.get_template("codelists_index.html")
+    
+    # template = Template(template_string)
     output_fullpath = CODELISTS_OUTPUT_INDEX
     here = os.path.dirname(output_fullpath)
     rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
@@ -96,14 +103,22 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
     codelist_hyperlinks = {}
     for c_id, c in codelists.items():
         rel_path_to_codelist_description = os.path.relpath(c.description_fullpath, here)
-        codelist_hyperlinks[c_id] = f"[{c_id}]({rel_path_to_codelist_description})"
+        # codelist_hyperlinks[c_id] = f"[{c_id}]({rel_path_to_codelist_description})"
+        # hyperlink = f"[{c_id}]({rel_path_to_codelist_description})"
+        hyperlink=f"<a href='{rel_path_to_codelist_description}'>{c_id}</a>"
+        hyperlink=re.sub(r'\.md', '.html', hyperlink) # temporary fix while md and html mix
+        codelist_hyperlinks[c_id] = hyperlink
         phhl = []
         for p in c.phenotypes_used_in:
             rel_path_to_phenotype_description = os.path.relpath(
                 phenotypes[p].description_fullpath,
                 here,
             )
-            phhl.append(f"[{p}]({rel_path_to_phenotype_description})")
+            # phhl.append(f"[{p}]({rel_path_to_phenotype_description})")
+            # hyperlink=f"[{p}]({rel_path_to_phenotype_description})"
+            hyperlink=f"<a href='{rel_path_to_phenotype_description}'>{c_id}</a>"
+            hyperlink=re.sub(r'\.md', '.html', hyperlink) # temporary fix while md and html mix
+            phhl.append(hyperlink)
         phenotype_hyperlinks[c_id] = ", ".join(phhl)
     c_ids = list(codelists.keys())
     c_ids_sorted = sorted(c_ids, key=lambda c_id: int(c_id[5:]))
