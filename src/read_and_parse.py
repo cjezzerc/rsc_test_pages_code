@@ -22,7 +22,7 @@ def read_phenotype_description_files(
             phenotype_descriptions_dir, phenotype_id + ".md"
         )
         if os.path.isfile(description_file):
-            with open(description_file, "r") as f:
+            with open(description_file, "r", encoding="utf-8") as f:
                 markdown = f.readlines()
             phenotype_descriptions[phenotype_id] = markdown
         else:
@@ -100,7 +100,7 @@ def read_codelist_description_files(
     for codelist_id in codelists_to_publish:
         description_file = os.path.join(codelist_descriptions_dir, codelist_id + ".md")
         if os.path.isfile(description_file):
-            with open(description_file, "r") as f:
+            with open(description_file, "r", encoding="utf-8") as f:
                 markdown = f.readlines()
             codelist_descriptions[codelist_id] = markdown
         else:

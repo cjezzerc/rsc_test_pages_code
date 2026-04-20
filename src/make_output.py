@@ -3,6 +3,7 @@ import os.path, re
 import openpyxl
 from jinja2 import Template
 from jinja2 import Environment, FileSystemLoader
+import markdown
 
 from config_locations_etc import *
 
@@ -165,6 +166,7 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
                 temp = re.sub("T:" + t, hyperlink, temp)
             temp = ("|" + temp).strip()[1:]  # strip trailing newlines
             modified_description.append(temp)
+        modified_description=markdown.markdown("\n".join(modified_description), extensions=['tables']).split('\n')
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
@@ -196,6 +198,9 @@ def create_codelist_output_description_files(codelists=None):
         for line in c.raw_description:
             temp = ("|" + line).strip()[1:]  # strip trailing newlines
             modified_description.append(temp)
+        modified_description=markdown.markdown("\n".join(modified_description), extensions=['tables']).split('\n')
+
+        
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
