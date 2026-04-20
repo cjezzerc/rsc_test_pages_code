@@ -1,3 +1,5 @@
+import re
+
 from read_and_parse import (
     parse_description_for_title,
     parse_description_for_brief_description,
@@ -11,6 +13,7 @@ from config_locations_etc import *
 class Phenotype:
     __slots__ = [
         "id",
+        "id_for_sorting",
         "raw_description",
         "title",
         "brief_description",
@@ -22,6 +25,8 @@ class Phenotype:
 
     def __init__(self, phenotype_id=None, phenotype_raw_description=None):
         self.id = phenotype_id
+        self.id_for_sorting = int(re.sub(r'RSC-PH','',self.id))
+
         self.raw_description = phenotype_raw_description
 
         self.title = parse_description_for_title(

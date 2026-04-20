@@ -31,7 +31,7 @@
                 {%- for p_id in p_ids_sorted %}
                 {%- set p = phenotypes[p_id] %}
                 <tr>
-                    <td>{{ phenotype_hyperlinks[p.id] | safe }}</td>
+                    <td data-order={{ p.id_for_sorting }} >{{ phenotype_hyperlinks[p.id] | safe }}</td>
                     <td>{{ p.title }}</td>
                     <td>{{ p.brief_description }}</td>
                     <td>{{ codelist_hyperlinks[p.id] | safe }}</td>
@@ -51,7 +51,17 @@
         $(document).ready(function () {
             $('#phenotypes-table').DataTable({
                 pageLength: 25,
-                order: [[0, 'asc']]
+                order: [[0, 'asc']],
+                columns: [
+                    { orderSequence: ['asc', 'desc'] },
+                    { orderSequence: ['asc', 'desc'] },
+                    { orderSequence: ['asc', 'desc'] },
+                    null,
+                    null
+                ],
+                columnDefs: [
+                    { targets: [3, 4], orderable: false }
+                ]
             });
         });
     </script>

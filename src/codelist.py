@@ -1,3 +1,5 @@
+import re
+
 from read_and_parse import (
     parse_description_for_title,
     parse_description_for_brief_description,
@@ -9,6 +11,7 @@ from config_locations_etc import *
 class Codelist:
     __slots__ = [
         "id",
+        "id_for_sorting",
         "raw_description",
         "title",
         "phenotypes_used_in",
@@ -22,6 +25,7 @@ class Codelist:
 
     def __init__(self, codelist_id=None, codelist_raw_description=None):
         self.id = codelist_id
+        self.id_for_sorting = int(re.sub(r'RSC-C','',self.id))
         self.raw_description = codelist_raw_description
 
         self.title = "TBI"

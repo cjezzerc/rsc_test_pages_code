@@ -30,7 +30,7 @@
                 {%- for c_id in c_ids_sorted %}
                 {%- set c = codelists[c_id] %}
                 <tr>
-                    <td>{{ codelist_hyperlinks[c.id] | safe }}</td>
+                    <td data-order={{ c.id_for_sorting }}> {{ codelist_hyperlinks[c.id] | safe }}</td>
                     <td>{{ c.title }}</td>
                     <td>{{ c.brief_description }}</td>
                     <td>{{ phenotype_hyperlinks[c.id] | safe }}</td>
@@ -49,7 +49,16 @@
         $(document).ready(function () {
             $('#codelists-table').DataTable({
                 pageLength: 25,
-                order: [[0, 'asc']]
+                order: [[0, 'asc']],
+                columns: [
+                    { orderSequence: ['asc', 'desc'] },
+                    { orderSequence: ['asc', 'desc'] },
+                    { orderSequence: ['asc', 'desc'] },
+                    null
+                ],
+                columnDefs: [
+                    { targets: [3], orderable: false }
+                ]
             });
         });
     </script>
