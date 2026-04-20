@@ -3,6 +3,7 @@
 {% block title %}RSC Codelist {{ codelist.id }}{% endblock %}
 
 {% block extra_head %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/v/bs5/dt-2.0.8/datatables.min.css">
     <style>
         .accordion-button {
             justify-content: flex-start;
@@ -12,6 +13,16 @@
             margin-left: 0;
             margin-right: 0.75rem;
             order: -1;
+        }
+
+        .dt-container {
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        #codelistAccordion table.dataTable,
+        #codelistAccordion table.js-datatable {
+            width: 100% !important;
         }
     </style>
 {% endblock %}
@@ -49,7 +60,7 @@
                     <div class="accordion-body">
                         <h4 class="mt-1">Include concept and descendants</h4>
                         {% if includes_plus_descs_sorted %}
-                        <table class="table table-striped table-bordered table-sm">
+                        <table class="table table-striped table-bordered table-sm js-datatable">
                             <thead>
                                 <tr>
                                     <th>SNOMED ID</th>
@@ -71,7 +82,7 @@
 
                         <h4 class="mt-4">Include just concept</h4>
                         {% if includes_just_concept_sorted %}
-                        <table class="table table-striped table-bordered table-sm">
+                        <table class="table table-striped table-bordered table-sm js-datatable">
                             <thead>
                                 <tr>
                                     <th>SNOMED ID</th>
@@ -93,7 +104,7 @@
 
                         <h4 class="mt-4">Exclude concept and descendants</h4>
                         {% if excludes_plus_descs_sorted %}
-                        <table class="table table-striped table-bordered table-sm">
+                        <table class="table table-striped table-bordered table-sm js-datatable">
                             <thead>
                                 <tr>
                                     <th>SNOMED ID</th>
@@ -115,7 +126,7 @@
 
                         <h4 class="mt-4">Exclude just concept</h4>
                         {% if excludes_just_concept_sorted %}
-                        <table class="table table-striped table-bordered table-sm">
+                        <table class="table table-striped table-bordered table-sm js-datatable">
                             <thead>
                                 <tr>
                                     <th>SNOMED ID</th>
@@ -146,7 +157,7 @@
                 </h3>
                 <div id="collapseExpansion" class="accordion-collapse collapse" aria-labelledby="headingExpansion">
                     <div class="accordion-body">
-                        <table class="table table-striped table-bordered table-sm">
+                        <table class="table table-striped table-bordered table-sm js-datatable">
                             <thead>
                                 <tr>
                                     <th>SNOMED ID</th>
@@ -167,4 +178,46 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/v/bs5/dt-2.0.8/datatables.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (typeof DataTable === "undefined") {
+                console.error("DataTables failed to load. Check CDN accessibility and script order.");
+                return;
+            }
+
+            var tables = document.querySelectorAll("#codelistAccordion table");
+            var instances = [];
+
+            tables.forEach(function (table) {
+                if (!table.querySelector("thead")) {
+                    return;
+                }
+
+                table.classList.add("js-datatable");
+                var dt = new DataTable(table, {
+                    order: [[1, "asc"]],
+                    autoWidth: false,
+                    pageLength: 25,
+                    lengthMenu: [10, 25, 50, 100],
+                });
+                dt.columns.adjust();
+                instances.push({ table: table, dt: dt });
+            });
+
+            document.querySelectorAll(".accordion-collapse").forEach(function (panel) {
+                panel.addEventListener("shown.bs.collapse", function () {
+                    instances.forEach(function (instance) {
+                        if (panel.contains(instance.table)) {
+                            instance.dt.columns.adjust();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 {% endblock %}
