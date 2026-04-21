@@ -294,7 +294,13 @@ def create_codelist_output_combo_files(codelists=None):
         includes_plus_descs_sorted=sorted(c.logical_definition["includes_plus_descs"], key=lambda item: item["term"])
         excludes_just_concept_sorted=sorted(c.logical_definition["excludes_just_concept"], key=lambda item: item["term"])
         excludes_plus_descs_sorted=sorted(c.logical_definition["excludes_plus_descs"], key=lambda item: item["term"])
+        logical_definition_available=includes_just_concept_sorted or includes_plus_descs_sorted or excludes_just_concept_sorted or excludes_plus_descs_sorted
+        if not logical_definition_available:
+            print(f"Warning: no logical definition data found for {c_id}")
         expansion_sorted=sorted(c.expansion, key=lambda item: item["term"])
+        expansion_available=expansion_sorted!=[]
+        if not expansion_available:
+            print(f"Warning: no expansion data found for {c_id}")
         rendered_template = template.render(
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
@@ -306,7 +312,9 @@ def create_codelist_output_combo_files(codelists=None):
             includes_plus_descs_sorted=includes_plus_descs_sorted,
             excludes_just_concept_sorted=excludes_just_concept_sorted,
             excludes_plus_descs_sorted=excludes_plus_descs_sorted,
+            logical_definition_available=logical_definition_available,
             expansion_sorted=expansion_sorted,
+            expansion_available=expansion_available
             
         )
         with open(output_fullpath, "w") as ofh:
