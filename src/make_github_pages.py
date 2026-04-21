@@ -59,7 +59,7 @@ for codelist_id in codelists_to_publish:
     if codelist_id in codelist_descriptions:
         codelist_raw_description = codelist_descriptions[codelist_id]
     else:
-        codelist_raw_description = ""
+        codelist_raw_description = ["No authored metadata available\n"]
     codelists[codelist_id] = Codelist(
         codelist_id=codelist_id, codelist_raw_description=codelist_raw_description
     )

@@ -27,9 +27,8 @@ class Codelist:
         self.id = codelist_id
         self.id_for_sorting = int(re.sub(r'RSC-C','',self.id))
         self.raw_description = codelist_raw_description
-
-        self.title = "No title available"
-        self.brief_description = "No brief description available"
+        self.title = ""
+        self.brief_description = ""
         self.phenotypes_used_in = []
         self.expansion = []
         self.logical_definition = {
