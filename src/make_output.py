@@ -313,6 +313,7 @@ def create_codelist_output_combo_files(codelists=None):
             excludes_just_concept_sorted=excludes_just_concept_sorted,
             excludes_plus_descs_sorted=excludes_plus_descs_sorted,
             logical_definition_available=logical_definition_available,
+            termbrowser_concept_url=TERMBROWSER_CONCEPT_URL,
             expansion_sorted=expansion_sorted,
             expansion_available=expansion_available
             
