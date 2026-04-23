@@ -1,0 +1,76 @@
+.top-nav-banner {
+    background-color: #002147;
+    min-height: 66px;
+}
+
+.top-nav-inner {
+    min-height: 66px;
+}
+
+.rsc-mark {
+    height: 45px;
+    width: auto;
+    display: block;
+}
+
+.top-nav-links a {
+    color: #ffffff;
+    font-size: 1.35rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.top-nav-links a:hover,
+.top-nav-links a:focus {
+    text-decoration: underline;
+}
+
+.prototype-warning-banner {
+    background-color: #b00020;
+    color: #ffffff;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-align: center;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.9rem;
+}
+
+.container h1,
+.container h2,
+.container h3,
+.container h4,
+.container h5,
+.container h6 {
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.container h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #d8dee4;
+}
+
+.container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #d8dee4;
+}
+
+.container h3 {
+    font-size: 1.25rem;
+}
+
+.container h4 {
+    font-size: 1rem;
+}
+
+.container h5 {
+    font-size: 0.875rem;
+}
+
+.container h6 {
+    font-size: 0.85rem;
+}

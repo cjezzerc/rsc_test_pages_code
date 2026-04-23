@@ -16,6 +16,7 @@ TERMBROWSER_CONCEPT_URL = (
 
 ORCHID_BANNER_FILENAME = "orchid_banner.png"
 RSC_IMAGE_FILENAME = "rsc_image.png"
+SHARED_CSS_FILENAME = "shared.css"
 
 
 def copy_shared_banner_images():
@@ -31,6 +32,27 @@ def copy_shared_banner_images():
         if not os.path.exists(source_path):
             raise FileNotFoundError(f"Required banner image not found: {source_path}")
         shutil.copy2(source_path, target_path)
+
+
+def copy_shared_stylesheet():
+    source_css_path = os.path.normpath(
+        os.path.join(os.path.dirname(__file__), "static", SHARED_CSS_FILENAME)
+    )
+    target_css_dir = os.path.join(OUTPUT_STAGING_ROOT_DIR, "assets", "css")
+    target_css_path = os.path.join(target_css_dir, SHARED_CSS_FILENAME)
+    os.makedirs(target_css_dir, exist_ok=True)
+
+    if not os.path.exists(source_css_path):
+        raise FileNotFoundError(f"Required stylesheet not found: {source_css_path}")
+
+    shutil.copy2(source_css_path, target_css_path)
+
+
+def get_rel_path_to_shared_css(here):
+    return os.path.relpath(
+        os.path.join(OUTPUT_STAGING_ROOT_DIR, "assets", "css", SHARED_CSS_FILENAME),
+        here,
+    )
 
 
 def get_rel_path_to_shared_image(image_name, here):
@@ -93,6 +115,7 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
         ORCHID_BANNER_FILENAME, here
     )
     rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
+    rel_path_to_shared_css = get_rel_path_to_shared_css(here)
     phenotype_hyperlinks = {}
     codelist_hyperlinks = {}
     template_hyperlinks = {}
@@ -139,6 +162,7 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
         rel_path_to_codelists_index=rel_path_to_codelists_index,
         rel_path_to_orchid_banner=rel_path_to_orchid_banner,
         rel_path_to_rsc_image=rel_path_to_rsc_image,
+        rel_path_to_shared_css=rel_path_to_shared_css,
     )
 
     with open(output_fullpath, "w") as ofh:
@@ -172,6 +196,7 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
         ORCHID_BANNER_FILENAME, here
     )
     rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
+    rel_path_to_shared_css = get_rel_path_to_shared_css(here)
     phenotype_hyperlinks = {}
     codelist_hyperlinks = {}
     for c_id, c in codelists.items():
@@ -206,6 +231,7 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
         rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
         rel_path_to_orchid_banner=rel_path_to_orchid_banner,
         rel_path_to_rsc_image=rel_path_to_rsc_image,
+        rel_path_to_shared_css=rel_path_to_shared_css,
     )
 
     with open(output_fullpath, "w") as ofh:
@@ -226,6 +252,7 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
             ORCHID_BANNER_FILENAME, here
         )
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
+        rel_path_to_shared_css = get_rel_path_to_shared_css(here)
 
         modified_description = []
         for line in p.raw_description:
@@ -258,6 +285,7 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
             rel_path_to_codelists_index=rel_path_to_codelists_index,
             rel_path_to_orchid_banner=rel_path_to_orchid_banner,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
+            rel_path_to_shared_css=rel_path_to_shared_css,
             phenotype=p,
             rendered_description_html=rendered_description_html,
         )
@@ -278,6 +306,7 @@ def create_codelist_output_combo_files(codelists=None):
             ORCHID_BANNER_FILENAME, here
         )
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
+        rel_path_to_shared_css = get_rel_path_to_shared_css(here)
         
         modified_description = []
         for line in c.raw_description:
@@ -306,6 +335,7 @@ def create_codelist_output_combo_files(codelists=None):
             rel_path_to_codelists_index=rel_path_to_codelists_index,
             rel_path_to_orchid_banner=rel_path_to_orchid_banner,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
+            rel_path_to_shared_css=rel_path_to_shared_css,
             codelist=c,
             rendered_description_html=rendered_description_html,
             includes_just_concept_sorted=includes_just_concept_sorted,
@@ -335,6 +365,7 @@ def create_codelist_output_description_files(codelists=None):
             ORCHID_BANNER_FILENAME, here
         )
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
+        rel_path_to_shared_css = get_rel_path_to_shared_css(here)
         rel_path_to_logical_definition = os.path.relpath(
             c.logical_definition_fullpath, here
         )
@@ -362,6 +393,7 @@ def create_codelist_output_description_files(codelists=None):
             rel_path_to_codelists_index=rel_path_to_codelists_index,
             rel_path_to_orchid_banner=rel_path_to_orchid_banner,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
+            rel_path_to_shared_css=rel_path_to_shared_css,
             rel_path_to_logical_definition=rel_path_to_logical_definition,
             rel_path_to_expansion=rel_path_to_expansion,
             codelist=c,
@@ -386,6 +418,7 @@ def create_codelist_output_logical_definition_files(codelists=None):
             ORCHID_BANNER_FILENAME, here
         )
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
+        rel_path_to_shared_css = get_rel_path_to_shared_css(here)
         rel_path_to_description = os.path.relpath(c.description_fullpath, here)
         rel_path_to_expansion = os.path.relpath(c.expansion_fullpath, here)
         rel_path_to_description = re.sub(r"\.md$", ".html", rel_path_to_description)
@@ -399,6 +432,7 @@ def create_codelist_output_logical_definition_files(codelists=None):
             rel_path_to_codelists_index=rel_path_to_codelists_index,
             rel_path_to_orchid_banner=rel_path_to_orchid_banner,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
+            rel_path_to_shared_css=rel_path_to_shared_css,
             rel_path_to_description=rel_path_to_description,
             rel_path_to_expansion=rel_path_to_expansion,
             termbrowser_concept_url=TERMBROWSER_CONCEPT_URL,
@@ -425,6 +459,7 @@ def create_codelist_output_expansion_files(codelists=None):
             ORCHID_BANNER_FILENAME, here
         )
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
+        rel_path_to_shared_css = get_rel_path_to_shared_css(here)
         rel_path_to_description = os.path.relpath(c.description_fullpath, here)
         rel_path_to_logical_definition = os.path.relpath(
             c.logical_definition_fullpath, here
@@ -439,6 +474,7 @@ def create_codelist_output_expansion_files(codelists=None):
             rel_path_to_codelists_index=rel_path_to_codelists_index,
             rel_path_to_orchid_banner=rel_path_to_orchid_banner,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
+            rel_path_to_shared_css=rel_path_to_shared_css,
             rel_path_to_description=rel_path_to_description,
             rel_path_to_logical_definition=rel_path_to_logical_definition,
             termbrowser_concept_url=TERMBROWSER_CONCEPT_URL,
