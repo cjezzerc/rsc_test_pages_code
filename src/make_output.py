@@ -78,7 +78,8 @@ def get_rel_path_to_shared_image(image_name, here):
 
 
 def add_bootstrap_table_classes(html_fragment):
-    table_classes = "table table-striped table-bordered table-sm"
+    # table_classes = "table table-striped table-bordered table-sm"
+    table_classes = "table table-bordered table-sm"
 
     def _inject(match):
         attrs = match.group(1) or ""

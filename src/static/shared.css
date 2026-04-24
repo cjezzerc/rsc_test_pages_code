@@ -82,3 +82,10 @@
 .container h6 {
     font-size: 0.85rem;
 }
+
+code {
+    font-weight: bold;
+    background-color: #f0f0f0;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+}
