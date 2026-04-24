@@ -304,7 +304,7 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
             temp = ("|" + temp).strip()[1:]  # strip trailing newlines
             modified_description.append(temp)
         rendered_description_html = markdown.markdown(
-            "\n".join(modified_description), extensions=["tables"], tab_length=2
+            "\n".join(modified_description), extensions=["tables", "extra", "sane_lists"], tab_length=2
         )  # tab_length=2 means 2 space indentation of bullets recognised; that is what vsc seems to default to
         rendered_description_html = add_bootstrap_table_classes(
             rendered_description_html
@@ -344,7 +344,7 @@ def create_codelist_output_combo_files(codelists=None):
             modified_description.append(temp)
         rendered_description_html = markdown.markdown(
             "\n".join(modified_description),
-            extensions=["tables"],
+            extensions=["tables", "extra", "sane_lists"],
         )
         rendered_description_html = add_bootstrap_table_classes(
             rendered_description_html
@@ -423,7 +423,7 @@ def create_codelist_output_description_files(codelists=None):
             modified_description.append(temp)
         rendered_description_html = markdown.markdown(
             "\n".join(modified_description),
-            extensions=["tables"],
+            extensions=["tables", "extra", "sane_lists"],
         )
         rendered_description_html = add_bootstrap_table_classes(
             rendered_description_html
