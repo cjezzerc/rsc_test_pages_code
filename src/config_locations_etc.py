@@ -1,7 +1,7 @@
 import os
 
 # ROOT_DIR = "../"
-ROOT_DIR=os.environ["ROOT_DIR"]
+ROOT_DIR=os.environ["ROOT_DIR"]+"/"
 # PHENOTYPE_LIST = ROOT_DIR + "config_files/phenotypes_for_website_table.xlsx"
 FROM_ORCHID_DIR = ROOT_DIR + "files_from_orchid/codelist_examples_for_website/"
 CODELIST_EXPANSIONS = FROM_ORCHID_DIR + "flatlist_for_website_examples.txt"
@@ -22,3 +22,5 @@ CODELISTS_OUTPUT_INDEX = OUTPUT_STAGING_ROOT_DIR + "codelists_index.html"
 CODELISTS_OUTPUT_DESCRIPTIONS_DIR = OUTPUT_STAGING_ROOT_DIR + "codelists/descriptions/"
 CODELISTS_OUTPUT_LOGICAL_DEFINITIONS_DIR = OUTPUT_STAGING_ROOT_DIR + "codelists/logical_definitions/"
 CODELISTS_OUTPUT_EXPANSIONS_DIR = OUTPUT_STAGING_ROOT_DIR + "codelists/expansions/"
+
+DATA_FOR_POWER_BI_DIR = os.environ["DATA_FOR_POWER_BI_DIR"]+"/"

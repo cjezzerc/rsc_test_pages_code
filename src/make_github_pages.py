@@ -19,8 +19,12 @@ from make_output import (
     create_codelist_output_expansion_files,
     create_codelist_output_combo_files,
 )
+
+from make_file_for_power_bi import make_file_for_power_bi
+
 from phenotype import Phenotype
 from codelist import Codelist
+
 
 # Get list of phenotypes to be published
 phenotypes_to_publish = read_phenotypes_to_publish(
@@ -87,3 +91,4 @@ create_phenotype_output_description_files(phenotypes=phenotypes, codelists=codel
 # create_codelist_output_logical_definition_files(codelists=codelists)
 # create_codelist_output_expansion_files(codelists=codelists)
 create_codelist_output_combo_files(codelists=codelists)
+make_file_for_power_bi(phenotypes=phenotypes)

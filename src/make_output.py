@@ -7,6 +7,8 @@ import markdown
 import git
 
 from config_locations_etc import *
+from timestamp import timestamp
+
 
 
 TERMBROWSER_CONCEPT_URL = (
@@ -28,8 +30,6 @@ authoring_repo = git.Repo(AUTHORING)
 authoring_sha = authoring_repo.head.object.hexsha[:7]
 if authoring_repo.is_dirty():
     authoring_sha="dirty-"+authoring_sha
-
-timestamp=datetime.datetime.now().strftime("%Y%m%d_%H-%M")
 
 build_info={"timestamp":timestamp, "renderer":renderer_sha, "authoring":authoring_sha}
 
