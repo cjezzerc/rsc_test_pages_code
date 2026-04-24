@@ -13,13 +13,16 @@
         <div class="container">
             <div class="top-nav-inner d-flex align-items-center justify-content-between gap-3">
                 <img class="rsc-mark" src="{{ rel_path_to_rsc_image }}" alt="RSC repository banner">
-                <div class="top-nav-links d-flex justify-content-end gap-4 py-1">
-                    {% if rel_path_to_phenotypes_index is defined and current_page != "phenotypes_index" %}
-                    <a href="{{ rel_path_to_phenotypes_index }}">Phenotype Index</a>
-                    {% endif %}
-                    {% if rel_path_to_codelists_index is defined and current_page != "codelists_index" %}
-                    <a href="{{ rel_path_to_codelists_index }}">Codelist Index</a>
-                    {% endif %}
+                <div class="top-nav-links d-flex flex-column align-items-end py-1">
+                    <div class="d-flex gap-4">
+                        {% if rel_path_to_phenotypes_index is defined and current_page != "phenotypes_index" %}
+                        <a href="{{ rel_path_to_phenotypes_index }}">Phenotype Index</a>
+                        {% endif %}
+                        {% if rel_path_to_codelists_index is defined and current_page != "codelists_index" %}
+                        <a href="{{ rel_path_to_codelists_index }}">Codelist Index</a>
+                        {% endif %}
+                    </div>
+                    <span class="top-nav-sha">time_stamp: {{build_info["timestamp"]}} authoring: {{ build_info["authoring"] }} renderer: {{ build_info["renderer"] }}</span>
                 </div>
             </div>
         </div>

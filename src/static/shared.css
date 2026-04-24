@@ -25,6 +25,14 @@
     text-decoration: underline;
 }
 
+.top-nav-sha {
+    color: #ffffff;
+    font-size: 0.6rem;
+    opacity: 0.6;
+    font-family: monospace;
+    align-self: center;
+}
+
 .prototype-warning-banner {
     background-color: #b00020;
     color: #ffffff;
