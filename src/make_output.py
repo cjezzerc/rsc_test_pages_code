@@ -291,7 +291,7 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
                 rel_path_to_codelist_description = os.path.relpath(
                     codelists[c].description_fullpath, here
                 )
-                hyperlink = f"<a href='{rel_path_to_codelist_description}'>{c}({codelists[c].title})</a>"
+                hyperlink = f"<a href='{rel_path_to_codelist_description}'>{c} ({codelists[c].title})</a>"
                 hyperlink = re.sub(r"\.md", ".html", hyperlink)
                 temp = re.sub(c, hyperlink, temp)
             for t in p.templates_mentioned:
