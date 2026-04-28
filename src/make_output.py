@@ -298,7 +298,7 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
                 rel_path_to_template_description = os.path.relpath(
                     phenotypes[t].description_fullpath, here
                 )
-                hyperlink = f"<a href='{rel_path_to_template_description}'>{t}</a>"
+                hyperlink = f"<a href='{rel_path_to_template_description}'>{t} ({phenotypes[t].title})</a>"
                 hyperlink = re.sub(r"\.md", ".html", hyperlink)
                 temp = re.sub("T:" + t, hyperlink, temp)
             temp = ("|" + temp).strip()[1:]  # strip trailing newlines
