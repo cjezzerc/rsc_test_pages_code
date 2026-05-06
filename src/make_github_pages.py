@@ -9,15 +9,15 @@ from read_and_parse import (
     read_and_set_logical_definitions,
 )
 from make_output import (
+    make_clean_output_staging_root_dir,
+    copy_READMEmd,
     copy_shared_banner_images,
     copy_shared_stylesheet,
     create_phenotype_index_markdown_file,
     create_codelist_index_markdown_file,
     create_phenotype_output_description_files,
-    create_codelist_output_description_files,
-    create_codelist_output_logical_definition_files,
-    create_codelist_output_expansion_files,
     create_codelist_output_combo_files,
+    convert_phenotype_html_files_to_docx,
 )
 
 from make_file_for_power_bi import make_file_for_power_bi
@@ -82,13 +82,13 @@ read_and_set_expansions(codelists=codelists)
 read_and_set_logical_definitions(codelists=codelists)
 
 # create output files
+make_clean_output_staging_root_dir()
 copy_shared_banner_images()
 copy_shared_stylesheet()
+copy_READMEmd()
 create_phenotype_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_codelist_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_phenotype_output_description_files(phenotypes=phenotypes, codelists=codelists)
-# create_codelist_output_description_files(codelists=codelists)
-# create_codelist_output_logical_definition_files(codelists=codelists)
-# create_codelist_output_expansion_files(codelists=codelists)
+convert_phenotype_html_files_to_docx()
 create_codelist_output_combo_files(codelists=codelists)
 make_file_for_power_bi(phenotypes=phenotypes)

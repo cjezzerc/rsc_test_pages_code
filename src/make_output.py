@@ -9,29 +9,48 @@ import git
 from config_locations_etc import *
 from timestamp import timestamp
 
-
-
 TERMBROWSER_CONCEPT_URL = (
     "https://termbrowser.nhs.uk/?perspective=full&conceptId1={concept_id}"
     "&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed"
     "&langRefset=999001261000000100,999000691000001104"
 )
 
-ORCHID_BANNER_FILENAME = "orchid_banner.png"
 RSC_IMAGE_FILENAME = "rsc_image.png"
 SHARED_CSS_FILENAME = "shared.css"
 
 renderer_repo = git.Repo(search_parent_directories=True)
 renderer_sha = renderer_repo.head.object.hexsha[:7]
 if renderer_repo.is_dirty():
-    renderer_sha="dirty-"+renderer_sha
+    renderer_sha = "dirty-" + renderer_sha
 # AUTHORING
 authoring_repo = git.Repo(AUTHORING)
 authoring_sha = authoring_repo.head.object.hexsha[:7]
 if authoring_repo.is_dirty():
-    authoring_sha="dirty-"+authoring_sha
+    authoring_sha = "dirty-" + authoring_sha
 
-build_info={"timestamp":timestamp, "renderer":renderer_sha, "authoring":authoring_sha}
+build_info = {
+    "timestamp": timestamp,
+    "renderer": renderer_sha,
+    "authoring": authoring_sha,
+}
+
+
+def make_clean_output_staging_root_dir():
+    #remove all old files and subfolders not touching ".git"
+    for subdir in ["phenotypes","codelists"]:
+        fullpath=f"{OUTPUT_STAGING_ROOT_DIR}/{subdir}"
+        if os.path.exists(fullpath):
+            print(f"Removing {fullpath}")
+            shutil.rmtree(fullpath)
+    for filename in ["README.md","phenotypes_index.html","codelists_index.html"]:
+        fullpath=f"{OUTPUT_STAGING_ROOT_DIR}/{filename}"
+        if os.path.exists(fullpath):
+            print(f"Removing {fullpath}")
+            os.remove(fullpath)
+    os.makedirs(f"{OUTPUT_STAGING_ROOT_DIR}", exist_ok=True)
+    os.makedirs(f"{OUTPUT_STAGING_ROOT_DIR}/phenotypes")
+    os.makedirs(f"{OUTPUT_STAGING_ROOT_DIR}/codelists")
+    os.makedirs(f"{OUTPUT_STAGING_ROOT_DIR}/codelists/descriptions")
 
 
 def copy_shared_banner_images():
@@ -41,7 +60,7 @@ def copy_shared_banner_images():
     target_images_dir = os.path.join(OUTPUT_STAGING_ROOT_DIR, "images")
     os.makedirs(target_images_dir, exist_ok=True)
 
-    for image_name in (ORCHID_BANNER_FILENAME, RSC_IMAGE_FILENAME):
+    for image_name in [RSC_IMAGE_FILENAME]:
         source_path = os.path.join(source_images_dir, image_name)
         target_path = os.path.join(target_images_dir, image_name)
         if not os.path.exists(source_path):
@@ -61,6 +80,19 @@ def copy_shared_stylesheet():
         raise FileNotFoundError(f"Required stylesheet not found: {source_css_path}")
 
     shutil.copy2(source_css_path, target_css_path)
+
+
+def copy_READMEmd():
+    source_READMEmd_path = os.path.normpath(
+        os.path.join(os.path.dirname(__file__), "static", "README.md")
+    )
+    target_READMEmd_dir = os.path.join(OUTPUT_STAGING_ROOT_DIR)
+    target_READMEmd_path = os.path.join(target_READMEmd_dir, "README.md")
+
+    if not os.path.exists(source_READMEmd_path):
+        raise FileNotFoundError(f"Required file not found: README.md")
+
+    shutil.copy2(source_READMEmd_path, target_READMEmd_path)
 
 
 def get_rel_path_to_shared_css(here):
@@ -127,9 +159,6 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
     here = os.path.dirname(output_fullpath)
     rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
     rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
-    rel_path_to_orchid_banner = get_rel_path_to_shared_image(
-        ORCHID_BANNER_FILENAME, here
-    )
     rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
     rel_path_to_shared_css = get_rel_path_to_shared_css(here)
     phenotype_hyperlinks = {}
@@ -183,7 +212,6 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
         current_page="phenotypes_index",
         rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
         rel_path_to_codelists_index=rel_path_to_codelists_index,
-        rel_path_to_orchid_banner=rel_path_to_orchid_banner,
         rel_path_to_rsc_image=rel_path_to_rsc_image,
         rel_path_to_shared_css=rel_path_to_shared_css,
     )
@@ -215,9 +243,6 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
     here = os.path.dirname(output_fullpath)
     rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
     rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
-    rel_path_to_orchid_banner = get_rel_path_to_shared_image(
-        ORCHID_BANNER_FILENAME, here
-    )
     rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
     rel_path_to_shared_css = get_rel_path_to_shared_css(here)
     phenotype_hyperlinks = {}
@@ -259,7 +284,6 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
         current_page="codelists_index",
         rel_path_to_codelists_index=rel_path_to_codelists_index,
         rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
-        rel_path_to_orchid_banner=rel_path_to_orchid_banner,
         rel_path_to_rsc_image=rel_path_to_rsc_image,
         rel_path_to_shared_css=rel_path_to_shared_css,
     )
@@ -278,9 +302,6 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
-        rel_path_to_orchid_banner = get_rel_path_to_shared_image(
-            ORCHID_BANNER_FILENAME, here
-        )
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_shared_css = get_rel_path_to_shared_css(here)
 
@@ -304,7 +325,9 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
             temp = ("|" + temp).strip()[1:]  # strip trailing newlines
             modified_description.append(temp)
         rendered_description_html = markdown.markdown(
-            "\n".join(modified_description), extensions=["tables", "extra", "sane_lists"], tab_length=2
+            "\n".join(modified_description),
+            extensions=["tables", "extra", "sane_lists"],
+            tab_length=2,
         )  # tab_length=2 means 2 space indentation of bullets recognised; that is what vsc seems to default to
         rendered_description_html = add_bootstrap_table_classes(
             rendered_description_html
@@ -313,7 +336,6 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
             build_info=build_info,
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
-            rel_path_to_orchid_banner=rel_path_to_orchid_banner,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
             rel_path_to_shared_css=rel_path_to_shared_css,
             phenotype=p,
@@ -332,9 +354,6 @@ def create_codelist_output_combo_files(codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
-        rel_path_to_orchid_banner = get_rel_path_to_shared_image(
-            ORCHID_BANNER_FILENAME, here
-        )
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_shared_css = get_rel_path_to_shared_css(here)
 
@@ -377,7 +396,6 @@ def create_codelist_output_combo_files(codelists=None):
             build_info=build_info,
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
-            rel_path_to_orchid_banner=rel_path_to_orchid_banner,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
             rel_path_to_shared_css=rel_path_to_shared_css,
             codelist=c,
@@ -404,9 +422,6 @@ def create_codelist_output_description_files(codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
-        rel_path_to_orchid_banner = get_rel_path_to_shared_image(
-            ORCHID_BANNER_FILENAME, here
-        )
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_shared_css = get_rel_path_to_shared_css(here)
         rel_path_to_logical_definition = os.path.relpath(
@@ -433,7 +448,6 @@ def create_codelist_output_description_files(codelists=None):
             build_info=build_info,
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
-            rel_path_to_orchid_banner=rel_path_to_orchid_banner,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
             rel_path_to_shared_css=rel_path_to_shared_css,
             rel_path_to_logical_definition=rel_path_to_logical_definition,
@@ -454,9 +468,6 @@ def create_codelist_output_logical_definition_files(codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
-        rel_path_to_orchid_banner = get_rel_path_to_shared_image(
-            ORCHID_BANNER_FILENAME, here
-        )
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_shared_css = get_rel_path_to_shared_css(here)
         rel_path_to_description = os.path.relpath(c.description_fullpath, here)
@@ -479,7 +490,6 @@ def create_codelist_output_logical_definition_files(codelists=None):
             build_info=build_info,
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
-            rel_path_to_orchid_banner=rel_path_to_orchid_banner,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
             rel_path_to_shared_css=rel_path_to_shared_css,
             rel_path_to_description=rel_path_to_description,
@@ -504,9 +514,6 @@ def create_codelist_output_expansion_files(codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
-        rel_path_to_orchid_banner = get_rel_path_to_shared_image(
-            ORCHID_BANNER_FILENAME, here
-        )
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_shared_css = get_rel_path_to_shared_css(here)
         rel_path_to_description = os.path.relpath(c.description_fullpath, here)
@@ -522,7 +529,6 @@ def create_codelist_output_expansion_files(codelists=None):
             build_info=build_info,
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
-            rel_path_to_orchid_banner=rel_path_to_orchid_banner,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
             rel_path_to_shared_css=rel_path_to_shared_css,
             rel_path_to_description=rel_path_to_description,
@@ -533,3 +539,28 @@ def create_codelist_output_expansion_files(codelists=None):
         )
         with open(output_fullpath, "w") as ofh:
             ofh.write(rendered_template)
+
+
+def convert_phenotype_html_files_to_docx():
+    from spire.doc import Document
+    from spire.doc import FileFormat
+
+    os.makedirs(DOCX_DIR, exist_ok=True)
+
+    for entry in os.scandir(PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR):
+        print(entry)
+        if not entry.is_file() or not entry.name.lower().endswith(".html"):
+            continue
+
+        input_fullpath = entry.path
+        output_filename = os.path.splitext(entry.name)[0] + ".docx"
+        output_fullpath = os.path.join(DOCX_DIR, output_filename)
+
+        document = Document()
+        try:
+            document.LoadFromFile(input_fullpath, FileFormat.Html)
+            document.SaveToFile(output_fullpath, FileFormat.Docx)
+        finally:
+            document.Close()
+
+
