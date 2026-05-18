@@ -3,9 +3,9 @@ import os
 # ROOT_DIR = "../"
 ROOT_DIR=os.environ["ROOT_DIR"]+"/"
 # PHENOTYPE_LIST = ROOT_DIR + "config_files/phenotypes_for_website_table.xlsx"
-FROM_ORCHID_DIR = ROOT_DIR + "files_from_orchid/codelist_examples_for_website/"
-CODELIST_EXPANSIONS = FROM_ORCHID_DIR + "flatlist_for_website_examples.txt"
-CODELIST_DEFINITIONS = FROM_ORCHID_DIR + "logical_definitions_for_website_examples.txt"
+FROM_ORCHID_DIR = ROOT_DIR + "files_from_orchid/codelists_for_website/"
+CODELIST_EXPANSIONS = FROM_ORCHID_DIR + "flatlists_for_website.txt"
+CODELIST_DEFINITIONS = FROM_ORCHID_DIR + "logical_definitions_for_website.txt"
 
 AUTHORING="/home/jeremy/GIT/rsc_test_pages_authoring/"
 PHENOTYPE_LIST = AUTHORING + "/phenotypes_to_publish.txt"
