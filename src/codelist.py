@@ -7,7 +7,6 @@ from read_and_parse import (
 
 from config_locations_etc import *
 
-
 class Codelist:
     __slots__ = [
         "id",
@@ -36,6 +35,7 @@ class Codelist:
             "includes_just_concept": [],
             "excludes_plus_descs": [],
             "excludes_just_concept": [],
+            "meds": {("All","A","NULL"): [], ("All","S","NULL"): []}
         }
         self.description_fullpath = CODELISTS_OUTPUT_DESCRIPTIONS_DIR + f"{self.id}.html"
 

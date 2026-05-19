@@ -36,16 +36,16 @@ build_info = {
 
 
 def make_clean_output_staging_root_dir():
-    #remove all old files and subfolders not touching ".git"
-    for subdir in ["phenotypes","codelists"]:
-        fullpath=f"{OUTPUT_STAGING_ROOT_DIR}/{subdir}"
+    # remove all old files and subfolders not touching ".git"
+    for subdir in ["phenotypes", "codelists"]:
+        fullpath = f"{OUTPUT_STAGING_ROOT_DIR}/{subdir}"
         if os.path.exists(fullpath):
-            print(f"Removing {fullpath}")
+            # print(f"Removing {fullpath}")
             shutil.rmtree(fullpath)
-    for filename in ["README.md","phenotypes_index.html","codelists_index.html"]:
-        fullpath=f"{OUTPUT_STAGING_ROOT_DIR}/{filename}"
+    for filename in ["README.md", "phenotypes_index.html", "codelists_index.html"]:
+        fullpath = f"{OUTPUT_STAGING_ROOT_DIR}/{filename}"
         if os.path.exists(fullpath):
-            print(f"Removing {fullpath}")
+            # print(f"Removing {fullpath}")
             os.remove(fullpath)
     os.makedirs(f"{OUTPUT_STAGING_ROOT_DIR}", exist_ok=True)
     os.makedirs(f"{OUTPUT_STAGING_ROOT_DIR}/phenotypes")
@@ -150,6 +150,8 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
     {%- endfor %}
 
 """
+    print(f"Creating phenotype index")
+
     jinja_environment = Environment(loader=FileSystemLoader("templates/"))
     # template = jinja_environment.get_template("phenotypes_index.md")
     template = jinja_environment.get_template("phenotypes_index.html")
@@ -234,6 +236,8 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
 {%- endfor %}
 
 """
+    print(f"Creating codelist index")
+
     jinja_environment = Environment(loader=FileSystemLoader("templates/"))
     # template = jinja_environment.get_template("phenotypes_index.md")
     template = jinja_environment.get_template("codelists_index.html")
@@ -295,9 +299,10 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
 def create_phenotype_output_description_files(phenotypes=None, codelists=None):
     jinja_environment = Environment(loader=FileSystemLoader("templates/"))
     template = jinja_environment.get_template("phenotype_description.html")
+    print(f"Creating phenotype description files")
 
     for p_id, p in phenotypes.items():
-        print(f"Outputting description file for {p_id}")
+        # print(f"Outputting description file for {p_id}")
         output_fullpath = p.description_fullpath
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
@@ -349,6 +354,20 @@ def create_codelist_output_combo_files(codelists=None):
     jinja_environment = Environment(loader=FileSystemLoader("templates/"))
     template = jinja_environment.get_template("codelist_combo.html")
 
+    meds_messages = {
+        (
+            "All",
+            "A",
+            "NULL",
+        ): "Include medications with any of the following as either their sole active ingredient, or in combination form (with ANY other active ingredient):",
+        (
+            "All",
+            "S",
+            "NULL",
+        ): "Include medications with any of the following as their sole active ingredient:",
+    }
+    print(f"Creating codelist description files")
+
     for c_id, c in codelists.items():
         output_fullpath = c.description_fullpath
         here = os.path.dirname(output_fullpath)
@@ -380,18 +399,30 @@ def create_codelist_output_combo_files(codelists=None):
         excludes_plus_descs_sorted = sorted(
             c.logical_definition["excludes_plus_descs"], key=lambda item: item["term"]
         )
+
+        meds_sorted = {}
+        meds_logical_definition_available = False
+        for details_tuple in c.logical_definition["meds"].keys():
+            meds_sorted[details_tuple] = sorted(
+                c.logical_definition["meds"][details_tuple],
+                key=lambda item: item["term"],
+            )
+            if meds_sorted[details_tuple] != []:
+                meds_logical_definition_available = True
+
         logical_definition_available = (
             includes_just_concept_sorted
             or includes_plus_descs_sorted
             or excludes_just_concept_sorted
             or excludes_plus_descs_sorted
+            or meds_logical_definition_available
         )
         if not logical_definition_available:
-            print(f"Warning: no logical definition data found for {c_id}")
+            print(f"!!!!! Warning: no logical definition data found for {c_id}:'{c.title}'")
         expansion_sorted = sorted(c.expansion, key=lambda item: item["term"])
         expansion_available = expansion_sorted != []
         if not expansion_available:
-            print(f"Warning: no expansion data found for {c_id}")
+            print(f"!!!!! Warning: no expansion data found for {c_id}:'{c.title}'")
         rendered_template = template.render(
             build_info=build_info,
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
@@ -404,6 +435,8 @@ def create_codelist_output_combo_files(codelists=None):
             includes_plus_descs_sorted=includes_plus_descs_sorted,
             excludes_just_concept_sorted=excludes_just_concept_sorted,
             excludes_plus_descs_sorted=excludes_plus_descs_sorted,
+            meds_sorted=meds_sorted,
+            meds_messages=meds_messages,
             logical_definition_available=logical_definition_available,
             termbrowser_concept_url=TERMBROWSER_CONCEPT_URL,
             expansion_sorted=expansion_sorted,
@@ -562,5 +595,3 @@ def convert_phenotype_html_files_to_docx():
             document.SaveToFile(output_fullpath, FileFormat.Docx)
         finally:
             document.Close()
-
-

@@ -7,6 +7,7 @@ from read_and_parse import (
     read_codelist_description_files,
     read_and_set_expansions,
     read_and_set_logical_definitions,
+    read_and_set_meds_logical_definitions
 )
 from make_output import (
     make_clean_output_staging_root_dir,
@@ -80,6 +81,7 @@ read_and_set_expansions(codelists=codelists)
 
 # Set the "logical_definition" attributes of all Codelist objects
 read_and_set_logical_definitions(codelists=codelists)
+read_and_set_meds_logical_definitions(codelists=codelists)
 
 # create output files
 make_clean_output_staging_root_dir()

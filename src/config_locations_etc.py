@@ -6,6 +6,7 @@ ROOT_DIR=os.environ["ROOT_DIR"]+"/"
 FROM_ORCHID_DIR = ROOT_DIR + "files_from_orchid/codelists_for_website/"
 CODELIST_EXPANSIONS = FROM_ORCHID_DIR + "flatlists_for_website.txt"
 CODELIST_DEFINITIONS = FROM_ORCHID_DIR + "logical_definitions_for_website.txt"
+CODELIST_MEDS_DEFINITIONS = FROM_ORCHID_DIR + "logical_definitions_for_medications_for_website.txt"
 
 AUTHORING="/home/jeremy/GIT/rsc_test_pages_authoring/"
 PHENOTYPE_LIST = AUTHORING + "/phenotypes_to_publish.txt"

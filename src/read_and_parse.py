@@ -144,3 +144,19 @@ def read_and_set_logical_definitions(codelists=None):
                 codelists[codelist_id].logical_definition[clause_type].append(
                     {"concept_id": concept_id, "term": term}
                 )
+
+def read_and_set_meds_logical_definitions(codelists=None):
+    with open(CODELIST_MEDS_DEFINITIONS, newline="", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f, delimiter="\t")
+        for row in reader:
+            codelist_id = "RSC-C" + row["ConditionID"]
+            details_tuple = (row["AMPorVMP"], row["CompoundPreparations"], row["DispensedDoseFormCategoryID"])
+            concept_id = row["IngredientConceptID"]
+            term = row["TERM"]
+            if codelist_id in codelists:
+                if details_tuple not in codelists[codelist_id].logical_definition["meds"].keys():
+                    print(f"WARNING Reading meds logical definitions: details tuple {details_tuple} not interpretable - ignoring row '{row}'")
+                else:
+                    codelists[codelist_id].logical_definition["meds"][details_tuple].append(
+                        {"concept_id": concept_id, "term": term}
+                    )
