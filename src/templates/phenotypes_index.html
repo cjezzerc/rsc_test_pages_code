@@ -17,6 +17,15 @@
     <div class="container mt-4">
         <h1 class="mb-4">Phenotype Index</h1>
 
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <label for="template-filter" class="form-label mb-0">Show:</label>
+            <select id="template-filter" class="form-select form-select-sm" style="width: auto;">
+                <option value="non-templates" selected>Regular phenotypes only</option>
+                <option value="templates">Template phenotypes only</option>
+                <option value="all">All phenotypes</option>
+            </select>
+        </div>
+
         <table id="phenotypes-table" class="table table-striped table-bordered">
             <thead>
                 <tr>
@@ -30,7 +39,7 @@
             <tbody>
                 {%- for p_id in p_ids_sorted %}
                 {%- set p = phenotypes[p_id] %}
-                <tr>
+                <tr data-is-template="{{ 'true' if p.is_template else 'false' }}">
                     <td data-order={{ p.id_for_sorting }} >{{ phenotype_hyperlinks[p.id] | safe }}</td>
                     <td>{{ p.title }}</td>
                     <td>{{ p.brief_description }}</td>
@@ -49,7 +58,30 @@
     <script src="https://cdn.datatables.net/2.1.8/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function () {
-            $('#phenotypes-table').DataTable({
+            var filterMode = $('#template-filter').val() || 'non-templates';
+
+            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                if (settings.nTable.id !== 'phenotypes-table') {
+                    return true;
+                }
+                if (filterMode === 'all') {
+                    return true;
+                }
+
+                var api = new $.fn.dataTable.Api(settings);
+                var rowNode = api.row(dataIndex).node();
+                var isTemplate = rowNode && rowNode.getAttribute('data-is-template') === 'true';
+
+                if (filterMode === 'templates') {
+                    return isTemplate;
+                }
+                if (filterMode === 'non-templates') {
+                    return !isTemplate;
+                }
+                return true;
+            });
+
+            var table = $('#phenotypes-table').DataTable({
                 pageLength: 25,
                 order: [[0, 'asc']],
                 columns: [
@@ -62,6 +94,11 @@
                 columnDefs: [
                     { targets: [3, 4], orderable: false }
                 ]
+            });
+
+            $('#template-filter').on('change', function () {
+                filterMode = this.value;
+                table.draw();
             });
         });
     </script>
