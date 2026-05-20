@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_head %}
+    <script>
+        function navigateToHelpSection() {
+            var select = document.getElementById('help-section-select');
+            if (select) {
+                window.location.href = select.value;
+            }
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-4 mb-5">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #d8dee4; padding-bottom: 0.3em; margin-bottom: 1.5rem;">
+            <h1 style="margin: 0; padding: 0; border: none; font-size: 2rem; font-weight: 600;">Help Information</h1>
+            <div class="d-flex align-items-center gap-2">
+                <label for="help-section-select" class="form-label mb-0">Section:</label>
+                <select id="help-section-select" class="form-select form-select-sm" style="width: auto;" onchange="navigateToHelpSection()">
+                    {% for section in help_sections %}
+                        <option value="{{ section.rel_href }}" {% if section.slug == current_help_section %}selected{% endif %}>{{ section.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                {{ rendered_body_html | safe }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

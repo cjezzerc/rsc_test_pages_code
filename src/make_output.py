@@ -34,14 +34,14 @@ build_info = {
 
 def make_clean_output_staging_root_dir():
     # remove all old files and subfolders not touching ".git"
-    for fullpath in [PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR]:
+    for fullpath in [PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR, DOCS_OUTPUT_DIR]:
         if os.path.exists(fullpath):
             shutil.rmtree(fullpath)
-    for fullpath in [PHENOTYPES_OUTPUT_INDEX, CODELISTS_OUTPUT_INDEX]:
+    for fullpath in [PHENOTYPES_OUTPUT_INDEX, CODELISTS_OUTPUT_INDEX, DOCS_OUTPUT_INDEX]:
         if os.path.exists(fullpath):
             os.remove(fullpath)
     os.makedirs(f"{OUTPUT_STAGING_ROOT_DIR}", exist_ok=True)
-    for fullpath in [PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR]:
+    for fullpath in [PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR, DOCS_OUTPUT_DIR]:
         os.makedirs(fullpath)
 
 
@@ -128,6 +128,111 @@ def add_bootstrap_table_classes(html_fragment):
     return re.sub(r"<table([^>]*)>", _inject, html_fragment)
 
 
+def create_docs_output_files():
+    print("Creating help docs pages")
+
+    docs_pages = [
+        {
+            "slug": "index",
+            "source_filename": "index.md",
+            "output_filename": "index.html",
+            "section_title": "Overview",
+            "page_title": "Help: Introduction",
+        },
+        {
+            "slug": "phenotypes",
+            "source_filename": "phenotypes.md",
+            "output_filename": "phenotypes.html",
+            "section_title": "Phenotypes",
+            "page_title": "Help: Phenotypes",
+        },
+        {
+            "slug": "codelists",
+            "source_filename": "codelists.md",
+            "output_filename": "codelists.html",
+            "section_title": "Codelists",
+            "page_title": "Help: Codelists",
+        },
+        {
+            "slug": "weekly_report",
+            "source_filename": "weekly_report.md",
+            "output_filename": "weekly_report.html",
+            "section_title": "Weekly Report",
+            "page_title": "Help: Weekly Report",
+        },
+        {
+            "slug": "data_visualisations",
+            "source_filename": "data_visualisations.md",
+            "output_filename": "data_visualisations.html",
+            "section_title": "Data Visualisations",
+            "page_title": "Help: Data Visualisations",
+        },
+    ]
+
+    jinja_environment = Environment(loader=FileSystemLoader("templates/"))
+    template = jinja_environment.get_template("help_page.html")
+
+    output_path_by_slug = {
+        page["slug"]: os.path.join(DOCS_OUTPUT_DIR, page["output_filename"])
+        for page in docs_pages
+    }
+
+    for page in docs_pages:
+        source_path = os.path.join(DOCS_DIR, page["source_filename"])
+        output_fullpath = output_path_by_slug[page["slug"]]
+        here = os.path.dirname(output_fullpath)
+
+        if os.path.isfile(source_path):
+            with open(source_path, "r", encoding="utf-8") as fh:
+                markdown_text = fh.read()
+        else:
+            markdown_text = (
+                f"# Missing help document\n\n"
+                f"Expected file: {page['source_filename']} in authoring docs folder."
+            )
+
+        markdown_text = re.sub(r"\.md([)#])", r".html\1", markdown_text)
+        rendered_body_html = markdown.markdown(
+            markdown_text,
+            extensions=["tables", "extra", "sane_lists"],
+            tab_length=2,
+        )
+        rendered_body_html = add_bootstrap_table_classes(rendered_body_html)
+
+        rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
+        rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+        rel_path_to_help_index = os.path.relpath(DOCS_OUTPUT_INDEX, here)
+        rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
+        rel_path_to_shared_css = get_rel_path_to_shared_css(here)
+
+        help_sections = []
+        for nav_page in docs_pages:
+            help_sections.append(
+                {
+                    "slug": nav_page["slug"],
+                    "title": nav_page["section_title"],
+                    "rel_href": os.path.relpath(output_path_by_slug[nav_page["slug"]], here),
+                }
+            )
+
+        rendered_template = template.render(
+            build_info=build_info,
+            page_title=page["page_title"],
+            current_page=f"help_{page['slug']}",
+            current_help_section=page["slug"],
+            help_sections=help_sections,
+            rendered_body_html=rendered_body_html,
+            rel_path_to_help_index=rel_path_to_help_index,
+            rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
+            rel_path_to_codelists_index=rel_path_to_codelists_index,
+            rel_path_to_rsc_image=rel_path_to_rsc_image,
+            rel_path_to_shared_css=rel_path_to_shared_css,
+        )
+
+        with open(output_fullpath, "w") as ofh:
+            ofh.write(rendered_template)
+
+
 def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
     template_string = """
 [Go to Codelist Index]({{ rel_path_to_codelists_index }})
@@ -153,6 +258,8 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
     here = os.path.dirname(output_fullpath)
     rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
     rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
+    rel_path_to_help_index = os.path.relpath(DOCS_OUTPUT_INDEX, here)
+    rel_path_to_help_phenotypes = os.path.relpath(os.path.join(DOCS_OUTPUT_DIR, "phenotypes.html"), here)
     rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
     rel_path_to_shared_css = get_rel_path_to_shared_css(here)
     phenotype_hyperlinks = {}
@@ -206,6 +313,8 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
         current_page="phenotypes_index",
         rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
         rel_path_to_codelists_index=rel_path_to_codelists_index,
+        rel_path_to_help_index=rel_path_to_help_index,
+        rel_path_to_help_phenotypes=rel_path_to_help_phenotypes,
         rel_path_to_rsc_image=rel_path_to_rsc_image,
         rel_path_to_shared_css=rel_path_to_shared_css,
     )
@@ -239,6 +348,8 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
     here = os.path.dirname(output_fullpath)
     rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
     rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+    rel_path_to_help_index = os.path.relpath(DOCS_OUTPUT_INDEX, here)
+    rel_path_to_help_codelists = os.path.relpath(os.path.join(DOCS_OUTPUT_DIR, "codelists.html"), here)
     rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
     rel_path_to_shared_css = get_rel_path_to_shared_css(here)
     phenotype_hyperlinks = {}
@@ -289,6 +400,8 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
         current_page="codelists_index",
         rel_path_to_codelists_index=rel_path_to_codelists_index,
         rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
+        rel_path_to_help_index=rel_path_to_help_index,
+        rel_path_to_help_codelists=rel_path_to_help_codelists,
         rel_path_to_rsc_image=rel_path_to_rsc_image,
         rel_path_to_shared_css=rel_path_to_shared_css,
     )
@@ -308,6 +421,8 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+        rel_path_to_help_index = os.path.relpath(DOCS_OUTPUT_INDEX, here)
+        rel_path_to_help_phenotypes = os.path.relpath(os.path.join(DOCS_OUTPUT_DIR, "phenotypes.html"), here)
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_shared_css = get_rel_path_to_shared_css(here)
 
@@ -342,6 +457,8 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
             build_info=build_info,
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
+            rel_path_to_help_index=rel_path_to_help_index,
+            rel_path_to_help_phenotypes=rel_path_to_help_phenotypes,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
             rel_path_to_shared_css=rel_path_to_shared_css,
             phenotype=p,
@@ -374,6 +491,8 @@ def create_codelist_output_combo_files(codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+        rel_path_to_help_index = os.path.relpath(DOCS_OUTPUT_INDEX, here)
+        rel_path_to_help_codelists = os.path.relpath(os.path.join(DOCS_OUTPUT_DIR, "codelists.html"), here)
         rel_path_to_download_file = os.path.relpath(CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR, here)
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_shared_css = get_rel_path_to_shared_css(here)
@@ -429,6 +548,8 @@ def create_codelist_output_combo_files(codelists=None):
             build_info=build_info,
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
+            rel_path_to_help_index=rel_path_to_help_index,
+            rel_path_to_help_codelists=rel_path_to_help_codelists,
             rel_path_to_rsc_image=rel_path_to_rsc_image,
             rel_path_to_shared_css=rel_path_to_shared_css,
             codelist=c,

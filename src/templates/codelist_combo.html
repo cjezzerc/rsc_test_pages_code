@@ -56,8 +56,13 @@
 
 {% block content %}
     <div class="container mt-4 mb-5">
-        <h1 class="mt-4 mb-2">RSC Codelist: {{ codelist.id }}</h1>
-        <h2 class="h5 text-muted mb-4">Title: {{ codelist.title }}</h2>
+        <div class="d-flex align-items-center justify-content-between mt-4 mb-2">
+            <div>
+                <h1 class="mb-0">RSC Codelist: {{ codelist.id }}</h1>
+                <h2 class="h5 text-muted mb-0">Title: {{ codelist.title }}</h2>
+            </div>
+            <a href="{{ rel_path_to_help_codelists }}" class="btn btn-sm btn-outline-secondary ms-2">Codelists Help</a>
+        </div>
 
         <div class="accordion" id="codelistAccordion">
             <div class="accordion-item">

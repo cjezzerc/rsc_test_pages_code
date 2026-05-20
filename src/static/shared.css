@@ -89,3 +89,43 @@ code {
     padding: 0.1em 0.3em;
     border-radius: 3px;
 }
+
+.help-section-banner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.35rem 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.help-section-tab {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    text-decoration: none;
+    color: #0d6efd;
+    font-weight: 600;
+    border: 1px solid #0d6efd;
+    border-radius: 0.375rem;
+    background-color: #ffffff;
+    padding: 0.375rem 0.75rem;
+    box-shadow: none;
+    transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.help-section-tab:hover,
+.help-section-tab:focus {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #ffffff;
+}
+
+.help-section-tab.active {
+    color: #ffffff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    box-shadow: none;
+    cursor: default;
+}

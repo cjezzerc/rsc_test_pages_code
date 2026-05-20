@@ -21,6 +21,9 @@
                         {% if rel_path_to_codelists_index is defined and current_page != "codelists_index" %}
                         <a href="{{ rel_path_to_codelists_index }}">Codelist Index</a>
                         {% endif %}
+                        {% if rel_path_to_help_index is defined and current_page != "help_index" %}
+                        <a href="{{ rel_path_to_help_index }}">Help</a>
+                        {% endif %}
                     </div>
                     <span class="top-nav-sha">time_stamp: {{build_info["timestamp"]}} authoring: {{ build_info["authoring"] }} renderer: {{ build_info["renderer"] }}</span>
                 </div>

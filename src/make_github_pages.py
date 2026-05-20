@@ -14,6 +14,7 @@ from make_output import (
     copy_READMEmd,
     copy_shared_banner_images,
     copy_shared_stylesheet,
+    create_docs_output_files,
     create_phenotype_index_markdown_file,
     create_codelist_index_markdown_file,
     create_phenotype_output_description_files,
@@ -89,6 +90,7 @@ make_clean_output_staging_root_dir()
 copy_shared_banner_images()
 copy_shared_stylesheet()
 copy_READMEmd()
+create_docs_output_files()
 create_phenotype_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_codelist_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_phenotype_output_description_files(phenotypes=phenotypes, codelists=codelists)
