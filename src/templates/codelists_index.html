@@ -24,6 +24,7 @@
                     <th>Title</th>
                     <th>Brief Description</th>
                     <th>Phenotypes Used In</th>
+                    <th>Download Expansion</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,6 +35,7 @@
                     <td>{{ c.title }}</td>
                     <td>{{ c.brief_description }}</td>
                     <td>{{ phenotype_hyperlinks[c.id] | safe }}</td>
+                    <td>{{ codelist_download_hyperlinks[c.id] | safe }}</td>
                 </tr>
                 {%- endfor %}
             </tbody>
@@ -54,10 +56,11 @@
                     { orderSequence: ['asc', 'desc'] },
                     { orderSequence: ['asc', 'desc'] },
                     { orderSequence: ['asc', 'desc'] },
+                    null,
                     null
                 ],
                 columnDefs: [
-                    { targets: [3], orderable: false }
+                    { targets: [3, 4], orderable: false }
                 ]
             });
         });

@@ -18,6 +18,7 @@ from make_output import (
     create_codelist_index_markdown_file,
     create_phenotype_output_description_files,
     create_codelist_output_combo_files,
+    create_codelist_download_files,
     convert_phenotype_html_files_to_docx,
 )
 
@@ -93,4 +94,5 @@ create_codelist_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_phenotype_output_description_files(phenotypes=phenotypes, codelists=codelists)
 # convert_phenotype_html_files_to_docx()
 create_codelist_output_combo_files(codelists=codelists)
+create_codelist_download_files(codelists=codelists)
 make_file_for_power_bi(phenotypes=phenotypes)

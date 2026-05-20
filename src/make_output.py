@@ -15,9 +15,6 @@ TERMBROWSER_CONCEPT_URL = (
     "&langRefset=999001261000000100,999000691000001104"
 )
 
-RSC_IMAGE_FILENAME = "rsc_image.png"
-SHARED_CSS_FILENAME = "shared.css"
-
 renderer_repo = git.Repo(search_parent_directories=True)
 renderer_sha = renderer_repo.head.object.hexsha[:7]
 if renderer_repo.is_dirty():
@@ -37,20 +34,15 @@ build_info = {
 
 def make_clean_output_staging_root_dir():
     # remove all old files and subfolders not touching ".git"
-    for subdir in ["phenotypes", "codelists"]:
-        fullpath = f"{OUTPUT_STAGING_ROOT_DIR}/{subdir}"
+    for fullpath in [PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR]:
         if os.path.exists(fullpath):
-            # print(f"Removing {fullpath}")
             shutil.rmtree(fullpath)
-    for filename in ["README.md", "phenotypes_index.html", "codelists_index.html"]:
-        fullpath = f"{OUTPUT_STAGING_ROOT_DIR}/{filename}"
+    for fullpath in [PHENOTYPES_OUTPUT_INDEX, CODELISTS_OUTPUT_INDEX]:
         if os.path.exists(fullpath):
-            # print(f"Removing {fullpath}")
             os.remove(fullpath)
     os.makedirs(f"{OUTPUT_STAGING_ROOT_DIR}", exist_ok=True)
-    os.makedirs(f"{OUTPUT_STAGING_ROOT_DIR}/phenotypes")
-    os.makedirs(f"{OUTPUT_STAGING_ROOT_DIR}/codelists")
-    os.makedirs(f"{OUTPUT_STAGING_ROOT_DIR}/codelists/descriptions")
+    for fullpath in [PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_DESCRIPTIONS_DIR, CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR]:
+        os.makedirs(fullpath)
 
 
 def copy_shared_banner_images():
@@ -251,6 +243,7 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
     rel_path_to_shared_css = get_rel_path_to_shared_css(here)
     phenotype_hyperlinks = {}
     codelist_hyperlinks = {}
+    codelist_download_hyperlinks = {}
     for c_id, c in codelists.items():
         rel_path_to_codelist_description = os.path.relpath(c.description_fullpath, here)
         # codelist_hyperlinks[c_id] = f"[{c_id}]({rel_path_to_codelist_description})"
@@ -276,6 +269,13 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
             )  # temporary fix while md and html mix
             phhl.append(hyperlink)
         phenotype_hyperlinks[c_id] = ", ".join(phhl)
+        rel_path_to_download_file = os.path.relpath(
+                f"{CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR}/{c_id}.txt",
+            here,
+        )
+        codelist_download_hyperlinks[c_id] = (
+            f"<a href='{rel_path_to_download_file}' class='btn btn-sm btn-outline-primary' download>Download</a>"
+        )
     c_ids = list(codelists.keys())
     c_ids_sorted = sorted(c_ids, key=lambda c_id: int(c_id[5:]))
 
@@ -285,6 +285,7 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
         c_ids_sorted=c_ids_sorted,
         codelist_hyperlinks=codelist_hyperlinks,
         phenotype_hyperlinks=phenotype_hyperlinks,
+        codelist_download_hyperlinks=codelist_download_hyperlinks,
         current_page="codelists_index",
         rel_path_to_codelists_index=rel_path_to_codelists_index,
         rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
@@ -373,6 +374,7 @@ def create_codelist_output_combo_files(codelists=None):
         here = os.path.dirname(output_fullpath)
         rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
+        rel_path_to_download_file = os.path.relpath(CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR, here)
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_shared_css = get_rel_path_to_shared_css(here)
 
@@ -441,6 +443,8 @@ def create_codelist_output_combo_files(codelists=None):
             termbrowser_concept_url=TERMBROWSER_CONCEPT_URL,
             expansion_sorted=expansion_sorted,
             expansion_available=expansion_available,
+            rel_path_to_download_file=rel_path_to_download_file,
+            download_filename=f"{c_id}.txt",
         )
         with open(output_fullpath, "w") as ofh:
             ofh.write(rendered_template)
@@ -572,6 +576,21 @@ def create_codelist_output_expansion_files(codelists=None):
         )
         with open(output_fullpath, "w") as ofh:
             ofh.write(rendered_template)
+
+
+def create_codelist_download_files(codelists=None):
+    for c_id, c in codelists.items():
+        output_fullpath = os.path.join(
+            CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR,
+            f"{c_id}.txt",
+        )
+        expansion_sorted = sorted(c.expansion, key=lambda item: item["term"])
+        with open(output_fullpath, "w", encoding="utf-8", newline="") as ofh:
+            ofh.write("concept_id\tterm\n")
+            for item in expansion_sorted:
+                concept_id = item["concept_id"]
+                term = item["term"].replace("\t", " ").replace("\n", " ")
+                ofh.write(f"{concept_id}\t{term}\n")
 
 
 def convert_phenotype_html_files_to_docx():
