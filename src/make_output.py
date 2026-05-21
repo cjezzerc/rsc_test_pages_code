@@ -234,26 +234,12 @@ def create_docs_output_files():
 
 
 def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
-    template_string = """
-[Go to Codelist Index]({{ rel_path_to_codelists_index }})
-
-# Phenotype Index
-
-| id | title | brief description | codelists used | templates used |
-|----|-------|-------------------|----------------|----------------|
-{%- for p_id in p_ids_sorted %} 
-    {%- set p = phenotypes[p_id] %} 
-| {{ phenotype_hyperlinks[p.id] }} | {{p.title}} | {{ p.brief_description }} | {{codelist_hyperlinks[p.id]}}| {{template_hyperlinks[p.id]}} |
-    {%- endfor %}
-
-"""
+   
     print(f"Creating phenotype index")
 
     jinja_environment = Environment(loader=FileSystemLoader("templates/"))
-    # template = jinja_environment.get_template("phenotypes_index.md")
     template = jinja_environment.get_template("phenotypes_index.html")
 
-    # template = Template(template_string)
     output_fullpath = PHENOTYPES_OUTPUT_INDEX
     here = os.path.dirname(output_fullpath)
     rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
@@ -324,26 +310,12 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
 
 
 def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
-    template_string = """
-[Go to Phenotype Index]({{ rel_path_to_phenotypes_index }})
     
-# Codelist Index
-
-| id | title | brief description | phenotypes used in |
-|----|-------|-------------------|----------------|
-{%- for c_id in c_ids_sorted %}
-{%- set c = codelists[c_id] %} 
-| {{ codelist_hyperlinks[c.id] }} | {{c.title}} | {{ c.brief_description }} | {{phenotype_hyperlinks[c.id]}}|
-{%- endfor %}
-
-"""
     print(f"Creating codelist index")
 
     jinja_environment = Environment(loader=FileSystemLoader("templates/"))
-    # template = jinja_environment.get_template("phenotypes_index.md")
     template = jinja_environment.get_template("codelists_index.html")
 
-    # template = Template(template_string)
     output_fullpath = CODELISTS_OUTPUT_INDEX
     here = os.path.dirname(output_fullpath)
     rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
@@ -357,8 +329,7 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
     codelist_download_hyperlinks = {}
     for c_id, c in codelists.items():
         rel_path_to_codelist_description = os.path.relpath(c.description_fullpath, here)
-        # codelist_hyperlinks[c_id] = f"[{c_id}]({rel_path_to_codelist_description})"
-        # hyperlink = f"[{c_id}]({rel_path_to_codelist_description})"
+        
         hyperlink = f"<a href='{rel_path_to_codelist_description}'>{c_id}</a>"
         hyperlink = re.sub(
             r"\.md", ".html", hyperlink
@@ -370,8 +341,6 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
                 phenotypes[p].description_fullpath,
                 here,
             )
-            # phhl.append(f"[{p}]({rel_path_to_phenotype_description})")
-            # hyperlink=f"[{p}]({rel_path_to_phenotype_description})"
             hyperlink = (
                 f"<a href='{rel_path_to_phenotype_description}'>{phenotypes[p].id}</a>"
             )
@@ -571,134 +540,6 @@ def create_codelist_output_combo_files(codelists=None):
             ofh.write(rendered_template)
 
 
-def create_codelist_output_description_files(codelists=None):
-    jinja_environment = Environment(loader=FileSystemLoader("templates/"))
-    template = jinja_environment.get_template("codelist_description.html")
-
-    for c_id, c in codelists.items():
-        output_fullpath = c.description_fullpath
-        here = os.path.dirname(output_fullpath)
-        rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
-        rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
-        rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
-        rel_path_to_shared_css = get_rel_path_to_shared_css(here)
-        rel_path_to_logical_definition = os.path.relpath(
-            c.logical_definition_fullpath, here
-        )
-        rel_path_to_expansion = os.path.relpath(c.expansion_fullpath, here)
-        rel_path_to_logical_definition = re.sub(
-            r"\.md$", ".html", rel_path_to_logical_definition
-        )
-        rel_path_to_expansion = re.sub(r"\.md$", ".html", rel_path_to_expansion)
-        modified_description = []
-        for line in c.raw_description:
-            temp = ("|" + line).strip()[1:]  # strip trailing newlines
-            modified_description.append(temp)
-        rendered_description_html = markdown.markdown(
-            "\n".join(modified_description),
-            extensions=["tables", "extra", "sane_lists"],
-        )
-        rendered_description_html = add_bootstrap_table_classes(
-            rendered_description_html
-        )
-
-        rendered_template = template.render(
-            build_info=build_info,
-            rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
-            rel_path_to_codelists_index=rel_path_to_codelists_index,
-            rel_path_to_rsc_image=rel_path_to_rsc_image,
-            rel_path_to_shared_css=rel_path_to_shared_css,
-            rel_path_to_logical_definition=rel_path_to_logical_definition,
-            rel_path_to_expansion=rel_path_to_expansion,
-            codelist=c,
-            rendered_description_html=rendered_description_html,
-        )
-        with open(output_fullpath, "w") as ofh:
-            ofh.write(rendered_template)
-
-
-def create_codelist_output_logical_definition_files(codelists=None):
-    jinja_environment = Environment(loader=FileSystemLoader("templates/"))
-    template = jinja_environment.get_template("codelist_logical_definition.html")
-
-    for c_id, c in codelists.items():
-        output_fullpath = c.logical_definition_fullpath
-        here = os.path.dirname(output_fullpath)
-        rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
-        rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
-        rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
-        rel_path_to_shared_css = get_rel_path_to_shared_css(here)
-        rel_path_to_description = os.path.relpath(c.description_fullpath, here)
-        rel_path_to_expansion = os.path.relpath(c.expansion_fullpath, here)
-        rel_path_to_description = re.sub(r"\.md$", ".html", rel_path_to_description)
-        rel_path_to_expansion = re.sub(r"\.md$", ".html", rel_path_to_expansion)
-        includes_just_concept_sorted = sorted(
-            c.logical_definition["includes_just_concept"], key=lambda item: item["term"]
-        )
-        includes_plus_descs_sorted = sorted(
-            c.logical_definition["includes_plus_descs"], key=lambda item: item["term"]
-        )
-        excludes_just_concept_sorted = sorted(
-            c.logical_definition["excludes_just_concept"], key=lambda item: item["term"]
-        )
-        excludes_plus_descs_sorted = sorted(
-            c.logical_definition["excludes_plus_descs"], key=lambda item: item["term"]
-        )
-        rendered_template = template.render(
-            build_info=build_info,
-            rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
-            rel_path_to_codelists_index=rel_path_to_codelists_index,
-            rel_path_to_rsc_image=rel_path_to_rsc_image,
-            rel_path_to_shared_css=rel_path_to_shared_css,
-            rel_path_to_description=rel_path_to_description,
-            rel_path_to_expansion=rel_path_to_expansion,
-            termbrowser_concept_url=TERMBROWSER_CONCEPT_URL,
-            codelist=c,
-            includes_just_concept_sorted=includes_just_concept_sorted,
-            includes_plus_descs_sorted=includes_plus_descs_sorted,
-            excludes_just_concept_sorted=excludes_just_concept_sorted,
-            excludes_plus_descs_sorted=excludes_plus_descs_sorted,
-        )
-        with open(output_fullpath, "w") as ofh:
-            ofh.write(rendered_template)
-
-
-def create_codelist_output_expansion_files(codelists=None):
-    jinja_environment = Environment(loader=FileSystemLoader("templates/"))
-    template = jinja_environment.get_template("codelist_expansion.html")
-
-    for c_id, c in codelists.items():
-        output_fullpath = c.expansion_fullpath
-        here = os.path.dirname(output_fullpath)
-        rel_path_to_phenotypes_index = os.path.relpath(PHENOTYPES_OUTPUT_INDEX, here)
-        rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
-        rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
-        rel_path_to_shared_css = get_rel_path_to_shared_css(here)
-        rel_path_to_description = os.path.relpath(c.description_fullpath, here)
-        rel_path_to_logical_definition = os.path.relpath(
-            c.logical_definition_fullpath, here
-        )
-        rel_path_to_description = re.sub(r"\.md$", ".html", rel_path_to_description)
-        rel_path_to_logical_definition = re.sub(
-            r"\.md$", ".html", rel_path_to_logical_definition
-        )
-        expansion_sorted = sorted(c.expansion, key=lambda item: item["term"])
-        rendered_template = template.render(
-            build_info=build_info,
-            rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
-            rel_path_to_codelists_index=rel_path_to_codelists_index,
-            rel_path_to_rsc_image=rel_path_to_rsc_image,
-            rel_path_to_shared_css=rel_path_to_shared_css,
-            rel_path_to_description=rel_path_to_description,
-            rel_path_to_logical_definition=rel_path_to_logical_definition,
-            termbrowser_concept_url=TERMBROWSER_CONCEPT_URL,
-            codelist=c,
-            expansion_sorted=expansion_sorted,
-        )
-        with open(output_fullpath, "w") as ofh:
-            ofh.write(rendered_template)
-
-
 def create_codelist_download_files(codelists=None):
     for c_id, c in codelists.items():
         output_fullpath = os.path.join(
@@ -713,25 +554,3 @@ def create_codelist_download_files(codelists=None):
                 term = item["term"].replace("\t", " ").replace("\n", " ")
                 ofh.write(f"{concept_id}\t{term}\n")
 
-
-def convert_phenotype_html_files_to_docx():
-    from spire.doc import Document
-    from spire.doc import FileFormat
-
-    os.makedirs(DOCX_DIR, exist_ok=True)
-
-    for entry in os.scandir(PHENOTYPES_OUTPUT_DESCRIPTIONS_DIR):
-        print(entry)
-        if not entry.is_file() or not entry.name.lower().endswith(".html"):
-            continue
-
-        input_fullpath = entry.path
-        output_filename = os.path.splitext(entry.name)[0] + ".docx"
-        output_fullpath = os.path.join(DOCX_DIR, output_filename)
-
-        document = Document()
-        try:
-            document.LoadFromFile(input_fullpath, FileFormat.Html)
-            document.SaveToFile(output_fullpath, FileFormat.Docx)
-        finally:
-            document.Close()
