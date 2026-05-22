@@ -35,21 +35,10 @@
             width: 100% !important;
         }
 
-        .expansion-download-control {
-            margin-right: 0.5rem;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .expansion-toolbar-inline {
-            display: flex !important;
-            align-items: center;
+        .expansion-actions {
+            display: flex;
             justify-content: flex-end;
-            gap: 0.5rem;
-        }
-
-        .expansion-toolbar-inline .dt-search {
-            margin: 0;
+            margin-bottom: 0.75rem;
         }
     </style>
 {% endblock %}
@@ -209,6 +198,9 @@
                 <div id="collapseExpansion" class="accordion-collapse collapse show" aria-labelledby="headingExpansion">
                     <div class="accordion-body">
                         {% if expansion_available %}
+                        <div class="expansion-actions">
+                            <a href="{{ rel_path_to_download_file }}" class="btn btn-sm btn-outline-primary" download>Download expansion</a>
+                        </div>
                             
                         <table id="expansion-table" class="table table-striped table-bordered table-sm js-datatable">
                             <thead>
@@ -287,28 +279,6 @@
                 dt.on("draw", togglePagingUi);
                 togglePagingUi();
                 dt.columns.adjust();
-
-                if (table.id === "expansion-table") {
-                    var container = dt.table().container();
-                    var searchControl = container.querySelector(".dt-search");
-                    if (searchControl && !container.querySelector(".expansion-download-control")) {
-                        if (searchControl.parentNode) {
-                            searchControl.parentNode.classList.add("expansion-toolbar-inline");
-                        }
-
-                        var downloadWrap = document.createElement("div");
-                        downloadWrap.className = "expansion-download-control";
-
-                        var downloadLink = document.createElement("a");
-                        downloadLink.className = "btn btn-sm btn-outline-primary";
-                        downloadLink.href = "{{ rel_path_to_download_file }}";
-                        downloadLink.download = "{{ download_filename }}";
-                        downloadLink.textContent = "Download expansion";
-
-                        downloadWrap.appendChild(downloadLink);
-                        searchControl.parentNode.insertBefore(downloadWrap, searchControl);
-                    }
-                }
 
                 instances.push({ table: table, dt: dt });
             });

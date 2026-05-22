@@ -462,7 +462,10 @@ def create_codelist_output_combo_files(codelists=None):
         rel_path_to_codelists_index = os.path.relpath(CODELISTS_OUTPUT_INDEX, here)
         rel_path_to_help_index = os.path.relpath(DOCS_OUTPUT_INDEX, here)
         rel_path_to_help_codelists = os.path.relpath(os.path.join(DOCS_OUTPUT_DIR, "codelists.html"), here)
-        rel_path_to_download_file = os.path.relpath(CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR, here)
+        rel_path_to_download_file = os.path.relpath(
+            f"{CODELISTS_OUTPUT_FOR_DOWNLOAD_DIR}/{c_id}.txt",
+            here,
+        )
         rel_path_to_rsc_image = get_rel_path_to_shared_image(RSC_IMAGE_FILENAME, here)
         rel_path_to_shared_css = get_rel_path_to_shared_css(here)
 
@@ -534,7 +537,6 @@ def create_codelist_output_combo_files(codelists=None):
             expansion_sorted=expansion_sorted,
             expansion_available=expansion_available,
             rel_path_to_download_file=rel_path_to_download_file,
-            download_filename=f"{c_id}.txt",
         )
         with open(output_fullpath, "w") as ofh:
             ofh.write(rendered_template)
