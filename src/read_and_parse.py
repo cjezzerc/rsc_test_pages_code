@@ -85,7 +85,7 @@ def parse_text_for_phenotype_usage(text=None):
     phenotypes_mentioned = []
     for line in text:
         phenotypes_mentioned += re.findall(r"\bRSC-PH\d+\b", line)
-    return phenotypes_mentioned
+    return list(set(phenotypes_mentioned)) # return deduplicated list
 
 
 def parse_phenotype_description_for_template_phenotype_usage(
