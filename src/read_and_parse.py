@@ -78,7 +78,7 @@ def parse_text_for_codelist_usage(text=None):
     codelists_mentioned = []
     for line in text:
         codelists_mentioned += re.findall(r"\bRSC-C\d+\b", line)
-    return codelists_mentioned
+    return list(set(codelists_mentioned)) # return deduplicated list
 
 def parse_text_for_phenotype_usage(text=None):
     # find all occurrences of RSC-C followed by pure digits
