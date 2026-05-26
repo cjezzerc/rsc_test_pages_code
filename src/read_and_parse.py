@@ -73,12 +73,19 @@ def parse_phenotype_description_for_is_template_status(phenotype_description=Non
     return is_template
 
 
-def parse_phenotype_description_for_codelist_usage(phenotype_description=None):
+def parse_text_for_codelist_usage(text=None):
     # find all occurrences of RSC-C followed by pure digits
     codelists_mentioned = []
-    for line in phenotype_description:
+    for line in text:
         codelists_mentioned += re.findall(r"\bRSC-C\d+\b", line)
     return codelists_mentioned
+
+def parse_text_for_phenotype_usage(text=None):
+    # find all occurrences of RSC-C followed by pure digits
+    phenotypes_mentioned = []
+    for line in text:
+        phenotypes_mentioned += re.findall(r"\bRSC-PH\d+\b", line)
+    return phenotypes_mentioned
 
 
 def parse_phenotype_description_for_template_phenotype_usage(

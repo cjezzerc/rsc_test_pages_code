@@ -9,6 +9,8 @@ import git
 from config_locations_etc import *
 from timestamp import timestamp
 
+from read_and_parse import parse_text_for_codelist_usage, parse_text_for_phenotype_usage
+
 TERMBROWSER_CONCEPT_URL = (
     "https://termbrowser.nhs.uk/?perspective=full&conceptId1={concept_id}"
     "&edition=uk-edition&server=https://termbrowser.nhs.uk/sct-browser-api/snomed"
@@ -128,7 +130,7 @@ def add_bootstrap_table_classes(html_fragment):
     return re.sub(r"<table([^>]*)>", _inject, html_fragment)
 
 
-def create_docs_output_files():
+def create_docs_output_files(phenotypes=None, codelists=None):
     print("Creating help docs pages")
 
     docs_pages = [
@@ -192,6 +194,23 @@ def create_docs_output_files():
             )
 
         markdown_text = re.sub(r"\.md([)#])", r".html\1", markdown_text)
+
+        # print(parse_text_for_codelist_usage(markdown_text.split('\n')))
+        for c in parse_text_for_codelist_usage([markdown_text]):
+            rel_path_to_codelist_description = os.path.relpath(
+                codelists[c].description_fullpath, here
+            )
+            hyperlink = f"<a href='{rel_path_to_codelist_description}'>{c} ({codelists[c].title})</a>"
+            markdown_text=re.sub(c, hyperlink, markdown_text)
+
+        for p in parse_text_for_phenotype_usage([markdown_text]):
+            rel_path_to_phenotype_description = os.path.relpath(
+                phenotypes[p].description_fullpath, here
+            )
+            hyperlink = f"<a href='{rel_path_to_phenotype_description}'>{p} ({phenotypes[p].title})</a>"
+            markdown_text=re.sub(p, hyperlink, markdown_text)
+
+        # phenotypes_mentioned=parse_text_for_phenotype_usage(markdown_text)
         rendered_body_html = markdown.markdown(
             markdown_text,
             extensions=["tables", "extra", "sane_lists"],

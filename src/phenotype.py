@@ -3,7 +3,7 @@ import re
 from read_and_parse import (
     parse_description_for_title,
     parse_description_for_brief_description,
-    parse_phenotype_description_for_codelist_usage,
+    parse_text_for_codelist_usage,
     parse_phenotype_description_for_template_phenotype_usage,
     parse_phenotype_description_for_is_template_status,
 )
@@ -41,8 +41,8 @@ class Phenotype:
             phenotype_description=phenotype_raw_description
         )
 
-        self.codelists_mentioned = parse_phenotype_description_for_codelist_usage(
-            phenotype_description=phenotype_raw_description
+        self.codelists_mentioned = parse_text_for_codelist_usage(
+            text=phenotype_raw_description
         )
 
         self.templates_mentioned = parse_phenotype_description_for_template_phenotype_usage(
