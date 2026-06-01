@@ -54,13 +54,11 @@ def make_file_for_power_bi(phenotypes=None):
     }
 
     data_visualisation_descriptions= {
-        "incidence":"""
-This data visualisation shows the total number of cases of this condition recorded in primary care (per 100 000 people) during the entire 2025 calendar year, estimated using records from the RCGP RSC database.
+        "incidence":"""This data visualisation shows the total number of cases of this condition recorded in primary care (per 100 000 people) during the entire 2025 calendar year, estimated using records from the RCGP RSC database.
 
 Cases are identified from patient records using coded events that are considered likely to indicate a case of the condition. 
 """,
-        "prevalence":"""
-This data visualisation shows the prevalence of this condition on 31st December 2025, estimated using records from the RCGP RSC database for the entire 2025 calendar year.
+        "prevalence":"""This data visualisation shows the prevalence of this condition on 31st December 2025, estimated using records from the RCGP RSC database for the entire 2025 calendar year.
 
 Cases are identified from patient records using coded events that are considered likely to indicate the presence of the condition.
 """,
@@ -69,8 +67,7 @@ Cases are identified from patient records using coded events that are considered
 People are assigned to a category where coded entries in their record can be used to determine the relevant status.
 """,
 
-        "drug_admin/presc":"""
-This data visualisation shows the total number of people for whom at least one coded entry indicating a prescription or administration of this drug/vaccine can be found in the RCGP RSC database during the entire 2025 calendar year.
+        "drug_admin/presc":"""This data visualisation shows the total number of people for whom at least one coded entry indicating a prescription or administration of this drug/vaccine can be found in the RCGP RSC database during the entire 2025 calendar year.
 """,
         "measured_item":"""This data visualisation shows the total number of people for whom at least one coded entry indicating measurement of this quantity can be found in the RCGP RSC database during the entire 2025 calendar year. 
 """

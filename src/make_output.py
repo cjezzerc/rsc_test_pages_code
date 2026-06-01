@@ -431,8 +431,8 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
                 hyperlink = f"<a href='{rel_path_to_template_description}'>{t} ({phenotypes[t].title})</a>"
                 hyperlink = re.sub(r"\.md", ".html", hyperlink)
                 temp = re.sub("T:" + t, hyperlink, temp)
-            temp = ("|" + temp).strip()[1:]  # strip trailing newlines
-            modified_description.append(temp)
+            # temp = (parse_text_for_codelist_usage + temp).strip()[1:]  # strip trailing newlines
+            modified_description.append(temp.rstrip())
         rendered_description_html = markdown.markdown(
             "\n".join(modified_description),
             extensions=["tables", "extra", "sane_lists"],
@@ -490,8 +490,8 @@ def create_codelist_output_combo_files(codelists=None):
 
         modified_description = []
         for line in c.raw_description:
-            temp = ("|" + line).strip()[1:]  # strip trailing newlines
-            modified_description.append(temp)
+            # temp = (parse_text_for_codelist_usage + line).strip()[1:]  # strip trailing newlines
+            modified_description.append(line.rstrip())
         rendered_description_html = markdown.markdown(
             "\n".join(modified_description),
             extensions=["tables", "extra", "sane_lists"],
