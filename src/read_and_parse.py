@@ -12,6 +12,12 @@ def read_phenotypes_to_publish(phenotypes_to_publish_file=None):
                 phenotypes_index.append(temp)
     return phenotypes_index
 
+def read_snomed_release_identifier_file(snomed_release_identifier_file=None):
+    phenotypes_index = []
+    with open(snomed_release_identifier_file) as fh:
+        snomed_release_identifier=fh.readlines()[0].strip()
+    return snomed_release_identifier
+
 
 def read_phenotype_description_files(
     phenotype_descriptions_dir=None, phenotypes_to_publish=None

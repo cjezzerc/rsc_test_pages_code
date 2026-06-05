@@ -3,6 +3,7 @@ import openpyxl
 from config_locations_etc import *
 from read_and_parse import (
     read_phenotypes_to_publish,
+    read_snomed_release_identifier_file,
     read_phenotype_description_files,
     read_codelist_description_files,
     read_and_set_expansions,
@@ -31,6 +32,11 @@ from codelist import Codelist
 # Get list of phenotypes to be published
 phenotypes_to_publish = read_phenotypes_to_publish(
     phenotypes_to_publish_file=PHENOTYPE_LIST
+)
+
+# Get SNOMED release identifier
+snomed_release_identifier = read_snomed_release_identifier_file(
+    snomed_release_identifier_file=SNOMED_RELEASE_IDENTIFIER_FILE
 )
 
 # Read the phenotype descriptions files
@@ -93,6 +99,6 @@ create_docs_output_files(phenotypes=phenotypes, codelists=codelists)
 create_phenotype_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_codelist_index_markdown_file(phenotypes=phenotypes, codelists=codelists)
 create_phenotype_output_description_files(phenotypes=phenotypes, codelists=codelists)
-create_codelist_output_combo_files(codelists=codelists)
+create_codelist_output_combo_files(codelists=codelists, snomed_release_identifier=snomed_release_identifier)
 create_codelist_download_files(codelists=codelists)
 make_file_for_power_bi(phenotypes=phenotypes)

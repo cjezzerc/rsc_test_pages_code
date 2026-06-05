@@ -10,6 +10,7 @@ SHARED_CSS_FILENAME = "shared.css"
 
 AUTHORING=os.environ["AUTHORING"]+"/"
 PHENOTYPE_LIST = AUTHORING + "/phenotypes_to_publish.txt"
+SNOMED_RELEASE_IDENTIFIER_FILE = AUTHORING + "/snomed_release_identifier.txt"
 PHENOTYPE_DESCRIPTIONS_DIR = AUTHORING + "phenotypes/"
 CODELIST_DESCRIPTIONS_DIR = AUTHORING + "codelists/"
 DOCS_DIR = AUTHORING + "docs/"

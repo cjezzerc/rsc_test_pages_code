@@ -456,7 +456,7 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
             ofh.write(rendered_template)
 
 
-def create_codelist_output_combo_files(codelists=None):
+def create_codelist_output_combo_files(codelists=None, snomed_release_identifier=None):
     jinja_environment = Environment(loader=FileSystemLoader("templates/"))
     template = jinja_environment.get_template("codelist_combo.html")
 
@@ -537,6 +537,7 @@ def create_codelist_output_combo_files(codelists=None):
             print(f"!!!!! Warning: no expansion data found for {c_id}:'{c.title}'")
         rendered_template = template.render(
             build_info=build_info,
+            snomed_release_identifier=snomed_release_identifier,
             rel_path_to_phenotypes_index=rel_path_to_phenotypes_index,
             rel_path_to_codelists_index=rel_path_to_codelists_index,
             rel_path_to_help_index=rel_path_to_help_index,
