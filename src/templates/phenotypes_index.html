@@ -64,7 +64,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container mt-4">
+    <div class="container mt-4 pb-4">
         <h1 class="mb-4">Phenotype Index</h1>
         <div class="d-flex align-items-center gap-2 mb-3">
             <label for="template-filter" class="form-label mb-0">Show:</label>
@@ -166,6 +166,12 @@
             var table = $('#phenotypes-table').DataTable({
                 pageLength: 50,
                 order: [[0, 'asc']],
+                layout: {
+                    topStart: 'info',
+                    topEnd: 'paging',
+                    bottomStart: null,
+                    bottomEnd: null
+                },
                 columns: [
                     { orderSequence: ['asc', 'desc'] },
                     { orderSequence: ['asc', 'desc'] },
