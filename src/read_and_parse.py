@@ -79,6 +79,25 @@ def parse_phenotype_description_for_is_template_status(phenotype_description=Non
     return is_template
 
 
+
+def parse_description_for_flavour(description=None):
+    # look for text following "## data visualisation flavour" (case insensitive) line, and before next "## ...." line found
+    in_flavour = False
+    flavour = "no-flavour-found"
+    for line in description:
+        if re.search(r"^##[ ]+data visualisation flavour", line.lower()):
+            in_flavour = True
+            continue
+        if in_flavour and line[:3] == "## ":
+            in_flavour = False
+            continue
+        if in_flavour:
+            if flavour == "no-flavour-found":
+                flavour = ""
+            flavour += " " + line.strip()
+    flavour = flavour.strip()
+    return flavour
+
 def parse_text_for_codelist_usage(text=None):
     # find all occurrences of RSC-C followed by pure digits
     codelists_mentioned = []

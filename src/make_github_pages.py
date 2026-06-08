@@ -24,6 +24,7 @@ from make_output import (
 )
 
 from make_file_for_power_bi import make_file_for_power_bi
+from make_data_extraction_files import make_data_extraction_files
 
 from phenotype import Phenotype
 from codelist import Codelist
@@ -102,3 +103,4 @@ create_phenotype_output_description_files(phenotypes=phenotypes, codelists=codel
 create_codelist_output_combo_files(codelists=codelists, snomed_release_identifier=snomed_release_identifier)
 create_codelist_download_files(codelists=codelists)
 make_file_for_power_bi(phenotypes=phenotypes)
+make_data_extraction_files(phenotypes=phenotypes, codelists=codelists)

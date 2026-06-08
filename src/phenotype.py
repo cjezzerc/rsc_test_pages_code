@@ -3,6 +3,7 @@ import re
 from read_and_parse import (
     parse_description_for_title,
     parse_description_for_brief_description,
+    parse_description_for_flavour,
     parse_text_for_codelist_usage,
     parse_phenotype_description_for_template_phenotype_usage,
     parse_phenotype_description_for_is_template_status,
@@ -21,6 +22,7 @@ class Phenotype:
         "templates_mentioned",
         "is_template",
         "description_fullpath",
+        "flavour",
     ]
 
     def __init__(self, phenotype_id=None, phenotype_raw_description=None):
@@ -34,6 +36,10 @@ class Phenotype:
         )
 
         self.brief_description = parse_description_for_brief_description(
+            description=phenotype_raw_description
+        )
+
+        self.flavour = parse_description_for_flavour(
             description=phenotype_raw_description
         )
 
