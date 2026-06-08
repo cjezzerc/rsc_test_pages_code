@@ -10,6 +10,56 @@
             overflow-wrap: normal;
             word-break: normal;
         }
+
+        #phenotypes-table th.template-used-header {
+            position: relative;
+        }
+
+        .header-filter-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .header-filter-btn {
+            border: 1px solid #ced4da;
+            background: #fff;
+            border-radius: 0.2rem;
+            width: 1.35rem;
+            height: 1.35rem;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .header-filter-btn.is-active {
+            border-color: #0d6efd;
+            color: #0d6efd;
+        }
+
+        .header-filter-panel {
+            position: absolute;
+            top: calc(100% + 0.25rem);
+            right: 0;
+            z-index: 5;
+            min-width: 15rem;
+            background: #fff;
+            border: 1px solid #ced4da;
+            border-radius: 0.3rem;
+            box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.12);
+            padding: 0.5rem;
+            display: none;
+        }
+
+        .header-filter-panel.open {
+            display: block;
+        }
+
+        .header-filter-panel select {
+            width: 100%;
+        }
     </style>
 {% endblock %}
 
@@ -33,7 +83,28 @@
                     <th>Title</th>
                     <th>Brief Description</th>
                     <th>Codelists Used</th>
-                    <th>Templates Used</th>
+                    <th class="template-used-header">
+                        <div class="header-filter-wrap">
+                            <span>Template used</span>
+                            <button
+                                type="button"
+                                id="template-used-filter-btn"
+                                class="header-filter-btn"
+                                aria-label="Filter Template used"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                            >
+                                <svg width="10" height="10" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                                    <path d="M1 2h14L9.5 8v5l-3-1V8L1 2z" fill="currentColor"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div id="template-used-filter-panel" class="header-filter-panel" role="dialog" aria-label="Template used filter">
+                            <select id="template-used-header-filter" class="form-select form-select-sm">
+                                <option value="">All</option>
+                            </select>
+                        </div>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -59,18 +130,29 @@
     <script>
         $(document).ready(function () {
             var filterMode = $('#template-filter').val() || 'non-templates';
+            var templateUsedFilter = '';
 
             $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
                 if (settings.nTable.id !== 'phenotypes-table') {
-                    return true;
-                }
-                if (filterMode === 'all') {
                     return true;
                 }
 
                 var api = new $.fn.dataTable.Api(settings);
                 var rowNode = api.row(dataIndex).node();
                 var isTemplate = rowNode && rowNode.getAttribute('data-is-template') === 'true';
+                var templateUsedText = '';
+
+                if (rowNode && rowNode.cells && rowNode.cells.length > 4) {
+                    templateUsedText = (rowNode.cells[4].textContent || '').trim();
+                }
+
+                if (templateUsedFilter !== '' && templateUsedText !== templateUsedFilter) {
+                    return false;
+                }
+
+                if (filterMode === 'all') {
+                    return true;
+                }
 
                 if (filterMode === 'templates') {
                     return isTemplate;
@@ -96,9 +178,53 @@
                 ]
             });
 
+            var templateUsedValues = new Set();
+
+            table.rows().every(function () {
+                var rowNode = this.node();
+                if (rowNode && rowNode.cells && rowNode.cells.length > 4) {
+                    var value = (rowNode.cells[4].textContent || '').trim();
+                    if (value !== '') {
+                        templateUsedValues.add(value);
+                    }
+                }
+            });
+
+            Array.from(templateUsedValues).sort().forEach(function (value) {
+                $('#template-used-header-filter').append(
+                    $('<option></option>').attr('value', value).text(value)
+                );
+            });
+
             $('#template-filter').on('change', function () {
                 filterMode = this.value;
                 table.draw();
+            });
+
+            $('#template-used-header-filter').on('change', function () {
+                templateUsedFilter = this.value;
+                $('#template-used-filter-btn').toggleClass('is-active', templateUsedFilter !== '');
+                table.draw();
+                $('#template-used-filter-panel').removeClass('open');
+                $('#template-used-filter-btn').attr('aria-expanded', 'false');
+            });
+
+            $('#template-used-filter-btn').on('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                var panel = $('#template-used-filter-panel');
+                var isOpen = panel.hasClass('open');
+                panel.toggleClass('open', !isOpen);
+                $(this).attr('aria-expanded', (!isOpen).toString());
+            });
+
+            $('#template-used-filter-panel').on('click', function (event) {
+                event.stopPropagation();
+            });
+
+            $(document).on('click', function () {
+                $('#template-used-filter-panel').removeClass('open');
+                $('#template-used-filter-btn').attr('aria-expanded', 'false');
             });
         });
     </script>
