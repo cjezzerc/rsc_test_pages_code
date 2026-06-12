@@ -98,6 +98,25 @@ def parse_description_for_flavour(description=None):
     flavour = flavour.strip()
     return flavour
 
+def parse_description_for_section(description=None, header_text=None):
+    # look for text following "## data visualisation flavour" (case insensitive) line, and before next "## ...." line found
+    in_section = False
+    section_text = "no-section-found"
+    for line in description:
+        if re.search(rf"^##[ ]+{header_text}", line.lower()):
+            in_section = True
+            continue
+        if in_section and line[:3] == "## ":
+            in_section = False
+            continue
+        if in_section:
+            if section_text == "no-section-found":
+                section_text = ""
+            # section_text += " " + line.strip()
+            section_text += " " + line
+    # section_text = section_text.strip()
+    return section_text
+
 def parse_text_for_codelist_usage(text=None):
     # find all occurrences of RSC-C followed by pure digits
     codelists_mentioned = []

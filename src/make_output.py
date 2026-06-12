@@ -17,15 +17,22 @@ TERMBROWSER_CONCEPT_URL = (
     "&langRefset=999001261000000100,999000691000001104"
 )
 
-renderer_repo = git.Repo(search_parent_directories=True)
-renderer_sha = renderer_repo.head.object.hexsha[:7]
-if renderer_repo.is_dirty():
-    renderer_sha = "dirty-" + renderer_sha
+try:
+    renderer_repo = git.Repo(search_parent_directories=True)
+    renderer_sha = renderer_repo.head.object.hexsha[:7]
+    if renderer_repo.is_dirty():
+        renderer_sha = "dirty-" + renderer_sha
+except git.exc.InvalidGitRepositoryError:
+    renderer_sha="not-git"
 # AUTHORING
-authoring_repo = git.Repo(AUTHORING)
-authoring_sha = authoring_repo.head.object.hexsha[:7]
-if authoring_repo.is_dirty():
-    authoring_sha = "dirty-" + authoring_sha
+try:
+    authoring_repo = git.Repo(AUTHORING)
+    authoring_sha = authoring_repo.head.object.hexsha[:7]
+    if authoring_repo.is_dirty():
+        authoring_sha = "dirty-" + authoring_sha
+except git.exc.InvalidGitRepositoryError:
+    authoring_sha="not-git"
+
 
 build_info = {
     "timestamp": timestamp,
