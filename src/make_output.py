@@ -335,6 +335,8 @@ def create_phenotype_index_markdown_file(phenotypes=None, codelists=None):
         ofh.write(rendered_template)
 
 
+
+
 def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
     
     print(f"Creating codelist index")
@@ -405,6 +407,20 @@ def create_codelist_index_markdown_file(codelists=None, phenotypes=None):
         ofh.write(rendered_template)
 
 
+def remove_section_from_description(description=None, header_text=None):
+    # used for e.g. removing the Data Visualisation Flavour section 
+    processed_description=[]
+    in_section = False
+    for line in description:
+        if re.search(rf"^##[ ]+{header_text}", line.lower()):
+            in_section = True
+            continue
+        if in_section and line[:3] == "## ":
+            in_section = False
+        if not in_section:
+            processed_description.append(line)
+    return processed_description
+
 def create_phenotype_output_description_files(phenotypes=None, codelists=None):
     jinja_environment = Environment(loader=FileSystemLoader("templates/"))
     template = jinja_environment.get_template("phenotype_description.html")
@@ -440,6 +456,7 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
                 temp = re.sub("T:" + t, hyperlink, temp)
             # temp = (parse_text_for_codelist_usage + temp).strip()[1:]  # strip trailing newlines
             modified_description.append(temp.rstrip())
+        modified_description=remove_section_from_description(description=modified_description, header_text="data visualisation flavour")
         rendered_description_html = markdown.markdown(
             "\n".join(modified_description),
             extensions=["tables", "extra", "sane_lists"],

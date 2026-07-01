@@ -1,7 +1,7 @@
 import os
 
 ROOT_DIR=os.environ["ROOT_DIR"]+"/"
-FROM_ORCHID_DIR = ROOT_DIR + "files_from_orchid/codelists_for_website/"
+FROM_ORCHID_DIR = ROOT_DIR + "files_from_orchid/codelists_for_website_23jun2026/"
 CODELIST_EXPANSIONS = FROM_ORCHID_DIR + "flatlists_for_website.txt"
 CODELIST_DEFINITIONS = FROM_ORCHID_DIR + "logical_definitions_for_website.txt"
 CODELIST_MEDS_DEFINITIONS = FROM_ORCHID_DIR + "logical_definitions_for_medications_for_website.txt"
