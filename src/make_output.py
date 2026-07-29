@@ -169,13 +169,13 @@ def create_docs_output_files(phenotypes=None, codelists=None):
             "section_title": "Weekly Report",
             "page_title": "Help: Weekly Report",
         },
-        {
-            "slug": "data_visualisations",
-            "source_filename": "data_visualisations.md",
-            "output_filename": "data_visualisations.html",
-            "section_title": "Data Visualisations",
-            "page_title": "Help: Data Visualisations",
-        },
+        # {
+        #     "slug": "data_visualisations",
+        #     "source_filename": "data_visualisations.md",
+        #     "output_filename": "data_visualisations.html",
+        #     "section_title": "Data Visualisations",
+        #     "page_title": "Help: Data Visualisations",
+        # },
     ]
 
     jinja_environment = Environment(loader=FileSystemLoader("templates/"))
