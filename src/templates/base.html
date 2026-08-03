@@ -12,7 +12,9 @@
     <div class="top-nav-banner d-flex align-items-center">
         <div class="container">
             <div class="top-nav-inner d-flex align-items-center justify-content-between gap-3">
-                <img class="rsc-mark" src="{{ rel_path_to_rsc_image }}" alt="RSC repository banner">
+                <a href="https://orchid.phc.ox.ac.uk/surveillance" target="_blank" rel="noopener noreferrer">
+                    <img class="rsc-mark" src="{{ rel_path_to_rsc_image }}" alt="RSC repository banner">
+                </a>
                 <div class="top-nav-links d-flex flex-column align-items-end py-1">
                     <div class="d-flex gap-4">
                         {% if rel_path_to_phenotypes_index is defined and current_page != "phenotypes_index" %}
