@@ -209,6 +209,7 @@
                                 <tr>
                                     <th>SNOMED ID</th>
                                     <th>Term</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -216,6 +217,15 @@
                                 <tr>
                                     <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}">{{ item["concept_id"] }}</a></td>
                                     <td>{{ item["term"] }}</td>
+                                    {# <td>{{ item["active_status"] }}</td> #}
+                                    {% if item["active_status"]=="1" %}
+                                        <td>{{ "" }}</td>
+                                    {% elif item["active_status"]=="0" %}    
+                                        <td>{{ "Inactive concept" }}</td>
+                                    {% elif item["active_status"]=="NULL" %}    
+                                        <td>{{ "EMIS concept" }}</td>
+                                    {% endif %}
+                                    
                                 </tr>
                                 {%- endfor %}
                             

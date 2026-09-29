@@ -163,20 +163,26 @@ def read_codelist_description_files(
 
 
 def read_and_set_expansions(codelists=None):
-    with open(CODELIST_EXPANSIONS, newline="", encoding="utf-8-sig") as f:
-        reader = csv.DictReader(f, delimiter="\t")
-        for row in reader:
-            codelist_id = "RSC-C" + row["ConditionID"]
-            concept_id = row["ConceptID"]
-            term = row["Term"]
-            if codelist_id in codelists:
-                codelists[codelist_id].expansion.append(
-                    {"concept_id": concept_id, "term": term}
-                )
+    for expansions_filename in [CODELIST_EXPANSIONS_NON_MEDS, CODELIST_EXPANSIONS_MEDS]:
+        with open(expansions_filename, newline="", encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f, delimiter="\t")
+            for row in reader:
+                codelist_id = "RSC-C" + row["ConditionID"]
+                concept_id = row["ConceptID"]
+                term = row["PreferredTerm"]
+                if "active" in row.keys(): # active_satatus current "0", "1" or "NULL"(meaning EMIS)
+                    active_status=row["active"]
+                else:
+                    active_status=row["ACTIVE"]
+                
+                if codelist_id in codelists:
+                    codelists[codelist_id].expansion.append(
+                        {"concept_id": concept_id, "term": term, "active_status": active_status}
+                    )
 
 
 def read_and_set_logical_definitions(codelists=None):
-    with open(CODELIST_DEFINITIONS, newline="", encoding="utf-8-sig") as f:
+    with open(CODELIST_DEFINITIONS_NON_MEDS, newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
             codelist_id = "RSC-C" + row["ConditionID"]
@@ -197,7 +203,7 @@ def read_and_set_logical_definitions(codelists=None):
                 )
 
 def read_and_set_meds_logical_definitions(codelists=None):
-    with open(CODELIST_MEDS_DEFINITIONS, newline="", encoding="utf-8-sig") as f:
+    with open(CODELIST_DEFINITIONS_MEDS, newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
             codelist_id = "RSC-C" + row["ConditionID"]

@@ -1,10 +1,12 @@
 import os
 
 ROOT_DIR=os.environ["ROOT_DIR"]+"/"
-FROM_ORCHID_DIR = ROOT_DIR + "files_from_orchid/codelists_for_website_23jun2026/"
-CODELIST_EXPANSIONS = FROM_ORCHID_DIR + "flatlists_for_website.txt"
-CODELIST_DEFINITIONS = FROM_ORCHID_DIR + "logical_definitions_for_website.txt"
-CODELIST_MEDS_DEFINITIONS = FROM_ORCHID_DIR + "logical_definitions_for_medications_for_website.txt"
+
+FROM_ORCHID_DIR = ROOT_DIR + "files_from_orchid/files_from_orchid_10sep26/files_from_orchid_10sep26/"
+CODELIST_EXPANSIONS_NON_MEDS = FROM_ORCHID_DIR + "flat_lists_non_meds.tsv"
+CODELIST_EXPANSIONS_MEDS = FROM_ORCHID_DIR + "flat_lists_meds.tsv"
+CODELIST_DEFINITIONS_NON_MEDS = FROM_ORCHID_DIR + "logical_defns_non_meds.tsv"
+CODELIST_DEFINITIONS_MEDS = FROM_ORCHID_DIR + "logical_defns_meds.tsv"
 RSC_IMAGE_FILENAME = "rsc_image.png"
 SHARED_CSS_FILENAME = "shared.css"
 
