@@ -50,7 +50,7 @@
                 <h1 class="mb-0">RSC Codelist: {{ codelist.id }}</h1>
                 <h2 class="h5 text-muted mb-0">Title: {{ codelist.title }}</h2>
             </div>
-            <a href="{{ rel_path_to_help_codelists }}" class="btn btn-sm btn-outline-secondary ms-2">Codelists Help</a>
+            <a href="{{ rel_path_to_help_codelists }}" target="_blank" class="btn btn-sm btn-outline-secondary ms-2">Codelists Help</a>
         </div>
 
         <div class="accordion" id="codelistAccordion">
@@ -94,7 +94,7 @@
                                 <tbody>
                                     {%- for item in includes_plus_descs_sorted %}
                                     <tr>
-                                        <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}">{{ item["concept_id"] }}</a></td>
+                                        <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}" target="_blank" >{{ item["concept_id"] }}</a></td>
                                         <td>{{ item["term"] }}</td>
                                     </tr>
                                     {%- endfor %}
@@ -114,7 +114,7 @@
                                 <tbody>
                                     {%- for item in includes_just_concept_sorted %}
                                     <tr>
-                                        <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}">{{ item["concept_id"] }}</a></td>
+                                        <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}" target="_blank" >{{ item["concept_id"] }}</a></td>
                                         <td>{{ item["term"] }}</td>
                                     </tr>
                                     {%- endfor %}
@@ -134,7 +134,7 @@
                                 <tbody>
                                     {%- for item in excludes_plus_descs_sorted %}
                                     <tr>
-                                        <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}">{{ item["concept_id"] }}</a></td>
+                                        <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}" target="_blank" >{{ item["concept_id"] }}</a></td>
                                         <td>{{ item["term"] }}</td>
                                     </tr>
                                     {%- endfor %}
@@ -154,7 +154,7 @@
                                 <tbody>
                                     {%- for item in excludes_just_concept_sorted %}
                                     <tr>
-                                        <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}">{{ item["concept_id"] }}</a></td>
+                                        <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}" target="_blank" >{{ item["concept_id"] }}</a></td>
                                         <td>{{ item["term"] }}</td>
                                     </tr>
                                     {%- endfor %}
@@ -175,7 +175,7 @@
                                         <tbody>
                                             {%- for item in meds_sorted[details_tuple] %}
                                             <tr>
-                                                <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}">{{ item["concept_id"] }}</a></td>
+                                                <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}" target="_blank" >{{ item["concept_id"] }}</a></td>
                                                 <td>{{ item["term"] }}</td>
                                             </tr>
                                             {%- endfor %}
@@ -215,7 +215,7 @@
                             <tbody>
                                 {%- for item in expansion_sorted %}
                                 <tr>
-                                    <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}">{{ item["concept_id"] }}</a></td>
+                                    <td><a href="{{ termbrowser_concept_url | replace('{concept_id}', item['concept_id'] | string) }}" target="_blank" >{{ item["concept_id"] }}</a></td>
                                     <td>{{ item["term"] }}</td>
                                     {# <td>{{ item["active_status"] }}</td> #}
                                     {% if item["active_status"]=="1" %}
