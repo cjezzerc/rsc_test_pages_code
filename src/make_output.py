@@ -220,7 +220,7 @@ def create_docs_output_files(phenotypes=None, codelists=None):
         # phenotypes_mentioned=parse_text_for_phenotype_usage(markdown_text)
         rendered_body_html = markdown.markdown(
             markdown_text,
-            extensions=["tables", "extra", "sane_lists"],
+            extensions=["tables", "extra", "sane_lists","attr_list"],
             tab_length=2,
         )
         rendered_body_html = add_bootstrap_table_classes(rendered_body_html)
@@ -459,7 +459,7 @@ def create_phenotype_output_description_files(phenotypes=None, codelists=None):
         modified_description=remove_section_from_description(description=modified_description, header_text="data visualisation flavour")
         rendered_description_html = markdown.markdown(
             "\n".join(modified_description),
-            extensions=["tables", "extra", "sane_lists"],
+            extensions=["tables", "extra", "sane_lists","attr_list"],
             tab_length=2,
         )  # tab_length=2 means 2 space indentation of bullets recognised; that is what vsc seems to default to
         rendered_description_html = add_bootstrap_table_classes(
@@ -518,7 +518,7 @@ def create_codelist_output_combo_files(codelists=None, snomed_release_identifier
             modified_description.append(line.rstrip())
         rendered_description_html = markdown.markdown(
             "\n".join(modified_description),
-            extensions=["tables", "extra", "sane_lists"],
+            extensions=["tables", "extra", "sane_lists","attr_list"],
         )
         rendered_description_html = add_bootstrap_table_classes(
             rendered_description_html
