@@ -18,7 +18,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #d8dee4; padding-bottom: 0.3em; margin-bottom: 1.5rem;">
             <h1 style="margin: 0; padding: 0; border: none; font-size: 2rem; font-weight: 600;">Help Information</h1>
             <div class="d-flex align-items-center gap-2">
-                <label for="help-section-select" class="form-label mb-0">Section:</label>
+                <label for="help-section-select" class="form-label mb-0">Help Section:</label>
                 <select id="help-section-select" class="form-select form-select-sm" style="width: auto;" onchange="navigateToHelpSection()">
                     {% for section in help_sections %}
                         <option value="{{ section.rel_href }}" {% if section.slug == current_help_section %}selected{% endif %}>{{ section.title }}</option>
